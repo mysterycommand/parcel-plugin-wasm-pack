@@ -12,16 +12,24 @@ const config = require('parcel-bundler/src/utils/config');
 
 const exec = promisify(childProcess.execFile);
 
+/**
+ * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L14
+ */
+const MAIN_FILES = ['src/lib.rs', 'src/main.rs'];
+
 let wasmPackInstalled = false;
 
 class WasmPackRustAsset extends RustAsset {
-  buildResult = {};
+  constructor(name, options) {
+    super(name, options);
+    this.buildResult = {};
+  }
 
   async parse() {
     /**
      * checks that 'rustup' is installed, installs the nightly toolchain, and the wasm32-unknown-unknown target
      * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L66
-     **/
+     */
     await super.installRust();
 
     await this.installWasmPack();
@@ -31,7 +39,7 @@ class WasmPackRustAsset extends RustAsset {
     const { cargoConfig, cargoDir, isMainFile } = await this.getCargoConfig();
 
     if (isMainFile) {
-      await this.ensureCargoConfig();
+      await this.ensureCargoConfig(cargoConfig, cargoDir);
 
       this.buildResult = {
         ...this.buildResult,
@@ -96,7 +104,7 @@ class WasmPackRustAsset extends RustAsset {
    */
   async getCargoConfig() {
     // See if there is a Cargo config in the project
-    let cargoConfig = await super.getConfig(['Cargo.toml']);
+    let cargoConfig = await this.getConfig(['Cargo.toml']);
     let cargoDir;
     let isMainFile = false;
 
@@ -125,7 +133,7 @@ class WasmPackRustAsset extends RustAsset {
    *
    * @memberof WasmPackRustAsset
    */
-  async ensureCargoConfig() {
+  async ensureCargoConfig(cargoConfig, cargoDir) {
     // Ensure the cargo config has cdylib as the crate-type
     if (!cargoConfig.lib) {
       cargoConfig.lib = {};
@@ -192,3 +200,5 @@ class WasmPackRustAsset extends RustAsset {
     js.split('\n').forEach(line => logger.log(line));
   }
 }
+
+module.exports = WasmPackRustAsset;
