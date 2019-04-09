@@ -1,9 +1,9 @@
 const path = require('path');
 const childProcess = require('child_process');
+const { promisify } = require('util');
 
 const fs = require('@parcel/fs');
 const logger = require('@parcel/logger');
-const { promisify } = require('@parcel/utils');
 const toml = require('@iarna/toml');
 const commandExists = require('command-exists');
 
@@ -13,8 +13,9 @@ const config = require('parcel-bundler/src/utils/config');
 const exec = promisify(childProcess.execFile);
 
 /**
- * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L14
+ * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L13-L14
  */
+const RUST_TARGET = 'wasm32-unknown-unknown';
 const MAIN_FILES = ['src/lib.rs', 'src/main.rs'];
 
 let wasmPackInstalled = false;
@@ -33,22 +34,16 @@ class WasmPackRustAsset extends RustAsset {
     await super.installRust();
 
     await this.installWasmPack();
-    const wasmBindgenInstalled = await commandExists('wasm-bindgen')
-      .then(() => true)
-      .catch(() => false);
     const { cargoConfig, cargoDir, isMainFile } = await this.getCargoConfig();
 
     if (isMainFile) {
       await this.ensureCargoConfig(cargoConfig, cargoDir);
 
-      this.buildResult = {
-        ...this.buildResult,
-        ...(await this.wasmPackBuild(
-          cargoConfig,
-          cargoDir,
-          wasmBindgenInstalled,
-        )),
-      };
+      this.buildResult = await this.wasmPackBuild(cargoConfig, cargoDir);
+      this.depsPath = await this.getDepsPath(
+        cargoDir,
+        this.buildResult.rustName,
+      );
     } else {
       throw new Error(
         `Couldn't figure out what to do with ${
@@ -153,18 +148,8 @@ class WasmPackRustAsset extends RustAsset {
     }
   }
 
-  async wasmPackBuild(cargoConfig, cargoDir, wasmBindgenInstalled) {
-    const args = [
-      'build',
-      ...(wasmBindgenInstalled ? ['-m', 'no-install'] : []),
-    ];
-
-    logger.log(
-      `wasm-bindgen ${
-        wasmBindgenInstalled ? '' : 'not '
-      }installed, calling wasm-pack with \`${args}\``,
-    );
-    await exec('wasm-pack', args, { cwd: cargoDir });
+  async wasmPackBuild(cargoConfig, cargoDir) {
+    await exec('wasm-pack', ['build'], { cwd: cargoDir });
 
     return {
       outDir: path.join(cargoDir, 'pkg'),
@@ -172,11 +157,33 @@ class WasmPackRustAsset extends RustAsset {
     };
   }
 
-  async postProcess(generated) {
-    JSON.stringify(generated, null, 2)
-      .split('\n')
-      .forEach(line => logger.log);
+  async getDepsPath(cargoDir, rustName) {
+    // Get output file paths
+    const { stdout } = await exec(
+      'cargo',
+      ['metadata', '--format-version', '1'],
+      {
+        cwd: cargoDir,
+      },
+    );
 
+    const { target_directory: targetDir } = JSON.parse(stdout);
+    return path.join(targetDir, RUST_TARGET, 'release', `${rustName}.d`);
+  }
+
+  async postProcess(generated) {
+    logger.log(this.name);
+
+    if (generated) {
+      logger.log('');
+      logger.log('generated:');
+      JSON.stringify(generated, null, 2)
+        .split('\n')
+        .forEach(line => logger.log(line));
+    }
+
+    logger.log('');
+    logger.log('build result:');
     JSON.stringify(this.buildResult, null, 2)
       .split('\n')
       .forEach(line => logger.log);
@@ -197,7 +204,11 @@ class WasmPackRustAsset extends RustAsset {
 
     // wasmPath = wasmPath.replace('\\', '/');
 
+    logger.log('');
+    logger.log('js:');
     js.split('\n').forEach(line => logger.log(line));
+
+    return generated;
   }
 }
 
