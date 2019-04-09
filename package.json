@@ -1,0 +1,9 @@
+{
+  "name": "parcel-plugin-wasm-pack",
+  "version": "1.0.0",
+  "description": "A Parcel plugin",
+  "main": "index.js",
+  "repository": "git@github.com:mysterycommand/parcel-plugin-wasm-pack.git",
+  "author": "Matt Hayes <matt@mysterycommand.com>",
+  "license": "(MIT OR Apache-2.0)"
+}
