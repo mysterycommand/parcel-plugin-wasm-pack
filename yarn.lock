@@ -696,7 +696,7 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@iarna/toml@^2.2.0":
+"@iarna/toml@2.2.3", "@iarna/toml@^2.2.0":
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-2.2.3.tgz#f060bf6eaafae4d56a7dac618980838b0696e2ab"
   integrity sha512-FmuxfCuolpLl0AnQ2NHSzoUKWEJDFl63qXjzdoWBVyFCXzMGm1spBzk7LeHNoVCiWCF7mRVms9e6jEV9+MoPbg==
@@ -714,7 +714,7 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
-"@parcel/fs@^1.11.0":
+"@parcel/fs@1.11.0", "@parcel/fs@^1.11.0":
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@parcel/fs/-/fs-1.11.0.tgz#fb8a2be038c454ad46a50dc0554c1805f13535cd"
   integrity sha512-86RyEqULbbVoeo8OLcv+LQ1Vq2PKBAvWTU9fCgALxuCTbbs5Ppcvll4Vr+Ko1AnmMzja/k++SzNAwJfeQXVlpA==
@@ -723,7 +723,7 @@
     mkdirp "^0.5.1"
     rimraf "^2.6.2"
 
-"@parcel/logger@^1.11.0":
+"@parcel/logger@1.11.0", "@parcel/logger@^1.11.0":
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@parcel/logger/-/logger-1.11.0.tgz#91f39da14ba08dd85db247145698c62102960abb"
   integrity sha512-lIRfDg+junbFUUeU0QtHX00gKCgEsYHZydFKwrJ8dc0D+WE2SYT1FcVCgpPAfKYgtg0QQMns8E9vzT9UjH92PQ==
@@ -734,7 +734,7 @@
     ora "^2.1.0"
     strip-ansi "^4.0.0"
 
-"@parcel/utils@^1.11.0":
+"@parcel/utils@1.11.0", "@parcel/utils@^1.11.0":
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@parcel/utils/-/utils-1.11.0.tgz#539e08fff8af3b26eca11302be80b522674b51ea"
   integrity sha512-cA3p4jTlaMeOtAKR/6AadanOPvKeg8VwgnHhOyfi0yClD0TZS/hi9xu12w4EzA/8NtHu0g6o4RDfcNjqN8l1AQ==
@@ -1401,7 +1401,7 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-command-exists@^1.2.6:
+command-exists@1.2.8, command-exists@^1.2.6:
   version "1.2.8"
   resolved "https://registry.yarnpkg.com/command-exists/-/command-exists-1.2.8.tgz#715acefdd1223b9c9b37110a149c6392c2852291"
   integrity sha512-PM54PkseWbiiD/mMsbvW351/u+dafwTJ0ye2qB60G1aGQP9j3xK2gmMDc+R34L3nDtx4qMCitXT75mkbkGJDLw==
