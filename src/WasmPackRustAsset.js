@@ -52,33 +52,33 @@ class WasmPackRustAsset extends RustAsset {
 
   async cargoInstall(cmd, dep) {
     dep || (dep = cmd);
-    logger.log(`installing ${dep}`);
+    logger.log(`installing ${cmd}`);
 
     if (installed[dep]) {
-      logger.log(`${dep} already installed, skipping`);
+      logger.log(`${cmd} already installed, skipping`);
       return;
     }
 
     await commandExists(cmd)
       .then(() => {
-        logger.log(`${dep} already installed, skipping`);
+        logger.log(`${cmd} already installed, skipping`);
         installed[dep] = true;
       })
       .catch(
         () =>
           new Promise((resolve, reject) => {
-            logger.log(`${dep} not installed, trying \`cargo install ${dep}\``);
+            logger.log(`${cmd} not installed, trying \`cargo install ${dep}\``);
 
             exec('cargo', ['install', dep], (err, stdout) => {
               if (err) {
                 installed[dep] = false;
-                logger.err(`something went wrong, ${dep} not installed`);
+                logger.err(`something went wrong, ${cmd} not installed`);
                 err.split('\n').forEach(line => logger.err(line));
                 reject(err);
               }
 
               installed[dep] = true;
-              logger.log(`${dep} installed successfully!`);
+              logger.log(`${cmd} installed successfully!`);
               stdout.split('\n').forEach(line => logger.log(line));
               resolve(stdout);
             });
