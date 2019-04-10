@@ -176,10 +176,10 @@ class WasmPackRustAsset extends RustAsset {
 
   async generate() {
     const loader = await this.getLoader(
-      path.relative(this.outDir, this.wasmPath),
-      path.relative(this.outDir, this.bindgenPath),
+      path.relative('./src', this.wasmPath),
+      path.relative('./src', this.bindgenPath),
     );
-    await fs.writeFile(path.join(this.outDir, 'loader.js'), loader);
+    // await fs.writeFile(path.join(this.outDir, 'loader.js'), loader);
 
     const bindgen = (await fs.readFile(this.bindgenPath))
       .toString()
@@ -193,7 +193,7 @@ class WasmPackRustAsset extends RustAsset {
       },
       {
         type: 'js',
-        path: path.join(this.outDir, 'loader.js'),
+        value: loader,
       },
     ];
   }

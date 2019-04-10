@@ -14,5 +14,4 @@ async function loadWasmBundle(bundlePath) {
     .then(wasm => wasm.instance.exports);
 }
 
-const wasm = await loadWasmBundle('./WASM_PATH');
-export default wasm;
+export default loadWasmBundle('./WASM_PATH');
