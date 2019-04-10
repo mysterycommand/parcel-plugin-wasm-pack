@@ -1,3 +1,5 @@
+import * as importObject from './RUST_NAME';
+
 async function loadWasmBundle(bundlePath) {
   return fetch(bundlePath)
     .then(response =>
@@ -13,3 +15,4 @@ async function loadWasmBundle(bundlePath) {
 }
 
 const wasm = await loadWasmBundle('./WASM_PATH');
+export default wasm;
