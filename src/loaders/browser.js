@@ -1,6 +1,4 @@
-import importObject from './RUST_NAME';
-
-function loadWasmBundle(bundlePath) {
+async function loadWasmBundle(bundlePath) {
   return fetch(bundlePath)
     .then(response =>
       WebAssembly.instantiateStreaming
@@ -14,4 +12,4 @@ function loadWasmBundle(bundlePath) {
     .then(wasm => wasm.instance.exports);
 }
 
-loadWasmBundle('./WASM_PATH');
+const wasm = await loadWasmBundle('./WASM_PATH');
