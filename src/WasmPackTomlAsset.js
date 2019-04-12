@@ -7,15 +7,7 @@ class WasmPackTomlAsset extends TomlAsset {
     return path.basename(this.name) === 'Cargo.toml';
   }
 
-  constructor(name, options) {
-    super(name, options);
-
-    if (this.isCargoToml) {
-      this.type = 'wasm';
-    }
-  }
-
-  parse(code) {
+  async parse(code) {
     if (!this.isCargoToml) {
       return super.parse(code);
     }
@@ -23,7 +15,7 @@ class WasmPackTomlAsset extends TomlAsset {
     // do wasm-pack stuff
   }
 
-  generate() {
+  async generate() {
     if (!this.isCargoToml) {
       return super.generate();
     }

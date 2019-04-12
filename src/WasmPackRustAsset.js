@@ -2,19 +2,17 @@ const path = require('path');
 
 const fs = require('@parcel/fs');
 const logger = require('@parcel/logger');
-const toml = require('@iarna/toml');
 
 const RustAsset = require('parcel-bundler/src/assets/RustAsset');
-const config = require('parcel-bundler/src/utils/config');
 
 const { exec, proc } = require('./child-process');
 const { cargoInstall, isInstalled } = require('./cargo-install');
+const { getCargoConfig, ensureCargoConfig } = require('./mixins/cargo-config');
 
 /**
  * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L13-L14
  */
 const RUST_TARGET = 'wasm32-unknown-unknown';
-const MAIN_FILES = ['src/lib.rs', 'src/main.rs'];
 
 function* matches(regex, str) {
   let match;
@@ -29,6 +27,9 @@ class WasmPackRustAsset extends RustAsset {
 
     this.type = 'js';
     this.dir = path.dirname(this.name);
+
+    this.getCargoConfig = getCargoConfig.bind(this);
+    this.ensureCargoConfig = ensureCargoConfig.bind(this);
 
     /*
     this.cargoConfig = {};
@@ -49,7 +50,7 @@ class WasmPackRustAsset extends RustAsset {
      * checks that 'rustup' is installed, installs the nightly toolchain, and the wasm32-unknown-unknown target
      * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L66
      */
-    await super.installRust();
+    await this.installRust();
 
     await this.getCargoConfig();
     await cargoInstall('wasm-pack');
@@ -64,63 +65,6 @@ class WasmPackRustAsset extends RustAsset {
         `Couldn't figure out what to do with ${
           this.name
         }. It should be a "main file" (lib.rs or main.rs) or a Cargo.toml`,
-      );
-    }
-  }
-
-  /**
-   * pulled out from Parcel's RustAsset class:
-   * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L40-L55
-   *
-   * @memberof WasmPackRustAsset
-   */
-  async getCargoConfig() {
-    // See if there is a Cargo config in the project
-    let cargoConfig = await this.getConfig(['Cargo.toml']);
-    let cargoDir;
-    let isMainFile = false;
-
-    if (cargoConfig) {
-      const mainFiles = MAIN_FILES.slice();
-      if (cargoConfig.lib && cargoConfig.lib.path) {
-        mainFiles.push(cargoConfig.lib.path);
-      }
-
-      cargoDir = path.dirname(await config.resolve(this.name, ['Cargo.toml']));
-      isMainFile = mainFiles.some(
-        file => path.join(cargoDir, file) === this.name,
-      );
-    }
-
-    this.cargoConfig = cargoConfig;
-    this.cargoDir = cargoDir;
-    this.isMainFile = isMainFile;
-  }
-
-  /**
-   * pulled out from Parcel's RustAsset class:
-   * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L108-L123
-   *
-   * @memberof WasmPackRustAsset
-   */
-  async ensureCargoConfig() {
-    const { cargoConfig, cargoDir } = this;
-
-    // Ensure the cargo config has cdylib as the crate-type
-    if (!cargoConfig.lib) {
-      cargoConfig.lib = {};
-    }
-
-    if (!Array.isArray(cargoConfig.lib['crate-type'])) {
-      cargoConfig.lib['crate-type'] = [];
-    }
-
-    if (!cargoConfig.lib['crate-type'].includes('cdylib')) {
-      cargoConfig.lib['crate-type'].push('cdylib');
-
-      await fs.writeFile(
-        path.join(cargoDir, 'Cargo.toml'),
-        toml.stringify(cargoConfig),
       );
     }
   }
