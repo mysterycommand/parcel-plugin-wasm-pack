@@ -24,26 +24,9 @@ class WasmPackRustAsset extends RustAsset {
     this.dir = path.dirname(this.name);
 
     this.getCargoConfig = getCargoConfig.bind(this);
-    /*
-    this.cargoConfig = {};
-    this.cargoDir = '';
-    this.isMainFile = false;
-    */
-
     this.ensureCargoConfig = ensureCargoConfig.bind(this);
-
     this.wasmPackBuild = wasmPackBuild.bind(this);
-
     this.postBuild = postBuild.bind(this);
-    /*
-    this.pkgDir = '';
-    this.rustName = '';
-
-    this.depsPath = '';
-    this.wasmPath = '';
-    this.initPath = '';
-    */
-
     this.getDepsPath = getDepsPath.bind(this);
   }
 
@@ -54,6 +37,13 @@ class WasmPackRustAsset extends RustAsset {
      */
     await this.installRust();
 
+    /**
+     * calling `getCargoConfig` creates:
+     *
+     * this.cargoConfig = {};
+     * this.cargoDir = '';
+     * this.isMainFile = false;
+     */
     await this.getCargoConfig();
     await cargoInstall('wasm-pack');
     await cargoInstall('wasm-bindgen', 'wasm-bindgen-cli');
@@ -61,6 +51,16 @@ class WasmPackRustAsset extends RustAsset {
     if (this.isMainFile) {
       await this.ensureCargoConfig();
       await this.wasmPackBuild();
+
+      /**
+       * calling `postBuild` creates:
+       *
+       * this.pkgDir = '';
+       * this.rustName = '';
+       * this.depsPath = '';
+       * this.wasmPath = '';
+       * this.initPath = '';
+       */
       await this.postBuild();
     } else {
       throw new Error(
