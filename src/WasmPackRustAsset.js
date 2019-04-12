@@ -1,20 +1,14 @@
 const path = require('path');
 
-const fs = require('@parcel/fs');
-
 const RustAsset = require('parcel-bundler/src/assets/RustAsset');
 
 const { cargoInstall } = require('./cargo-install');
-const { loaderTemplate, bindgenTemplate } = require('./templates');
 const { getCargoConfig, ensureCargoConfig } = require('./mixins/cargo-config');
 const { wasmPackBuild, postBuild, getDepsPath } = require('./mixins/wasm-pack');
-
-function* matches(regex, str) {
-  let match;
-  while ((match = regex.exec(str)) !== null) {
-    yield match;
-  }
-}
+const {
+  generateBrowser,
+  generateElectronOrNode,
+} = require('./mixins/generators');
 
 class WasmPackRustAsset extends RustAsset {
   constructor(name, options) {
@@ -23,11 +17,22 @@ class WasmPackRustAsset extends RustAsset {
     this.type = 'js';
     this.dir = path.dirname(this.name);
 
-    this.getCargoConfig = getCargoConfig.bind(this);
-    this.ensureCargoConfig = ensureCargoConfig.bind(this);
-    this.wasmPackBuild = wasmPackBuild.bind(this);
-    this.postBuild = postBuild.bind(this);
-    this.getDepsPath = getDepsPath.bind(this);
+    Object.entries({
+      // @see: './mixins/cargo-config'
+      getCargoConfig,
+      ensureCargoConfig,
+
+      // @see: './mixins/wasm-pack'
+      wasmPackBuild,
+      postBuild,
+      getDepsPath,
+
+      // @see: './mixins/generators'
+      generateBrowser,
+      generateElectronOrNode,
+    }).forEach(([name, fn]) => {
+      this[name] = fn.bind(this);
+    });
   }
 
   async parse() {
@@ -75,44 +80,6 @@ class WasmPackRustAsset extends RustAsset {
     return this.options.target === 'browser'
       ? await this.generateBrowser()
       : await this.generateElectronOrNode();
-  }
-
-  async generateBrowser() {
-    const loader = await this.getBrowserLoaderString();
-    await fs.writeFile(require.resolve('./loader.js'), loader);
-
-    return [
-      {
-        type: 'js',
-        value: this.getBrowserBindgenString(loader),
-      },
-    ];
-  }
-
-  async getBrowserLoaderString() {
-    const { initPath } = this;
-
-    return (await fs.readFile(initPath))
-      .toString()
-      .replace('(function() {', '')
-      .replace(
-        'self.wasm_bindgen = Object.assign(init, __exports);',
-        loaderTemplate,
-      )
-      .replace('})();', '');
-  }
-
-  getBrowserBindgenString(loader) {
-    const { dir, wasmPath } = this;
-
-    return bindgenTemplate(
-      path.relative(dir, wasmPath),
-      Array.from(matches(/__exports.(\w+)/g, loader)),
-    );
-  }
-
-  async generateElectronOrNode() {
-    return [];
   }
 }
 
