@@ -1,6 +1,8 @@
 const path = require('path');
 
+const { Asset } = require('parcel-bundler');
 const RustAsset = require('parcel-bundler/src/assets/RustAsset');
+const TomlAsset = require('parcel-bundler/src/assets/TOMLAsset');
 
 const { cargoInstall } = require('./cargo-install');
 const { getCargoConfig, ensureCargoConfig } = require('./mixins/cargo-config');
@@ -10,11 +12,24 @@ const {
   generateElectronOrNode,
 } = require('./mixins/generators');
 
-class WasmPackRustAsset extends RustAsset {
+class WasmPackAsset extends Asset {
+  get isWasm() {
+    return (
+      path.extname(this.name) === '.rs' ||
+      path.basename(this.name) === 'Cargo.toml'
+    );
+  }
+
   constructor(name, options) {
     super(name, options);
-
     this.type = 'js';
+
+    if (!this.isWasm) {
+      // if this isn't `*.rs` or `Cargo.toml` then it's just a vanilla `*.toml`
+      // file and we don't need to bother with any of this mixin/state stuff
+      return;
+    }
+
     this.dir = path.dirname(this.name);
 
     Object.entries({
@@ -35,12 +50,25 @@ class WasmPackRustAsset extends RustAsset {
     });
   }
 
-  async parse() {
+  async process() {
+    if (!this.isWasm) {
+      return super.process();
+    }
+
+    return RustAsset.prototype.process.call(this);
+  }
+
+  async parse(code) {
+    if (!this.isWasm) {
+      return TomlAsset.prototype.parse.call(this, code);
+    }
+
     /**
-     * checks that 'rustup' is installed, installs the nightly toolchain, and the wasm32-unknown-unknown target
+     * checks that 'rustup' is installed, installs the nightly toolchain, and
+     * the wasm32-unknown-unknown target
      * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L66
      */
-    await this.installRust();
+    await RustAsset.prototype.installRust.call(this);
 
     /**
      * calling `getCargoConfig` creates:
@@ -76,11 +104,23 @@ class WasmPackRustAsset extends RustAsset {
     }
   }
 
+  async collectDependencies() {
+    if (!this.isWasm) {
+      return super.collectDependencies();
+    }
+
+    return RustAsset.prototype.collectDependencies.call(this);
+  }
+
   async generate() {
+    if (!this.isWasm) {
+      return TomlAsset.prototype.generate.call(this);
+    }
+
     return this.options.target === 'browser'
       ? await this.generateBrowser()
       : await this.generateElectronOrNode();
   }
 }
 
-module.exports = WasmPackRustAsset;
+module.exports = WasmPackAsset;
