@@ -28,9 +28,9 @@ async function getCargoConfig() {
     }
 
     cargoDir = path.dirname(await config.resolve(this.name, ['Cargo.toml']));
-    isMainFile = mainFiles.some(
-      file => path.join(cargoDir, file) === this.name,
-    );
+    isMainFile =
+      mainFiles.some(file => path.join(cargoDir, file) === this.name) ||
+      this.basename === 'Cargo.toml';
   }
 
   this.cargoConfig = cargoConfig;

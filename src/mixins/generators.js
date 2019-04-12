@@ -10,10 +10,16 @@ async function generateBrowser() {
   const loader = await getBrowserLoaderString(initPath);
   await fs.writeFile(require.resolve('../loader.js'), loader);
 
+  let fromPath = path.relative(dir, wasmPath);
+  if (fromPath[0] !== '.') {
+    fromPath = `./${fromPath}`;
+  }
+  fromPath.replace('\\', '/');
+
   return [
     {
       type: 'js',
-      value: getBrowserBindgenString(dir, wasmPath, loader),
+      value: getBrowserBindgenString(fromPath, loader),
     },
   ];
 }
@@ -36,9 +42,9 @@ function* matches(regex, str) {
   }
 }
 
-function getBrowserBindgenString(dir, wasmPath, loader) {
+function getBrowserBindgenString(fromPath, loader) {
   return bindgenTemplate(
-    path.relative(dir, wasmPath),
+    fromPath,
     Array.from(matches(/__exports.(\w+)/g, loader)),
   );
 }
