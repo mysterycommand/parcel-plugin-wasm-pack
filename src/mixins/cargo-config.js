@@ -4,7 +4,9 @@ const fs = require('@parcel/fs');
 const toml = require('@iarna/toml');
 
 const config = require('parcel-bundler/src/utils/config');
-
+/**
+ * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L13-L14
+ */
 const MAIN_FILES = ['src/lib.rs', 'src/main.rs'];
 
 /**
