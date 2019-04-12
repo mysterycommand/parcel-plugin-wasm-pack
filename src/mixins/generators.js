@@ -1,22 +1,24 @@
+const path = require('path');
+
 const fs = require('@parcel/fs');
 
 const { loaderTemplate, bindgenTemplate } = require('../templates');
 
 async function generateBrowser() {
-  const loader = await getBrowserLoaderString();
-  await fs.writeFile(require.resolve('./loader.js'), loader);
+  const { dir, initPath, wasmPath } = this;
+
+  const loader = await getBrowserLoaderString(initPath);
+  await fs.writeFile(require.resolve('../loader.js'), loader);
 
   return [
     {
       type: 'js',
-      value: getBrowserBindgenString(loader),
+      value: getBrowserBindgenString(dir, wasmPath, loader),
     },
   ];
 }
 
-async function getBrowserLoaderString() {
-  const { initPath } = this;
-
+async function getBrowserLoaderString(initPath) {
   return (await fs.readFile(initPath))
     .toString()
     .replace('(function() {', '')
@@ -34,9 +36,7 @@ function* matches(regex, str) {
   }
 }
 
-function getBrowserBindgenString(loader) {
-  const { dir, wasmPath } = this;
-
+function getBrowserBindgenString(dir, wasmPath, loader) {
   return bindgenTemplate(
     path.relative(dir, wasmPath),
     Array.from(matches(/__exports.(\w+)/g, loader)),

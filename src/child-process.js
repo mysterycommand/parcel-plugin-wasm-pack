@@ -20,7 +20,7 @@ function proc(bin, args, opts) {
       if (stdoutLine.includes('\n')) {
         stdout += stdoutLine;
         const lines = stdoutLine.split('\n');
-        lines.slice(0, -1).forEach(line => logger.verbose(line));
+        lines.slice(0, -1).forEach(line => logger.progress(line));
         stdoutLine = lines.slice(-1)[0];
       }
     });
@@ -31,12 +31,14 @@ function proc(bin, args, opts) {
       if (stderrLine.includes('\n')) {
         stderr += stderrLine;
         const lines = stderrLine.split('\n');
-        lines.slice(0, -1).forEach(line => logger.verbose(line));
+        lines.slice(0, -1).forEach(line => logger.progress(line));
         stderrLine = lines.slice(-1)[0];
       }
     });
 
     p.on('close', code => {
+      logger.clear();
+
       if (code === 0) {
         resolve(stdout);
       } else {
@@ -44,7 +46,10 @@ function proc(bin, args, opts) {
       }
     });
 
-    p.on('error', reject);
+    p.on('error', e => {
+      logger.clear();
+      reject(e);
+    });
   });
 }
 

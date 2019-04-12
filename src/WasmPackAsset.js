@@ -1,5 +1,7 @@
 const path = require('path');
 
+const logger = require('@parcel/logger');
+
 const { Asset } = require('parcel-bundler');
 const RustAsset = require('parcel-bundler/src/assets/RustAsset');
 const TomlAsset = require('parcel-bundler/src/assets/TOMLAsset');
@@ -30,6 +32,7 @@ class WasmPackAsset extends Asset {
       return;
     }
 
+    logger.verbose(`${this.name} is a wasm target`);
     this.dir = path.dirname(this.name);
 
     Object.entries({
@@ -46,8 +49,9 @@ class WasmPackAsset extends Asset {
       generateBrowser,
       generateElectronOrNode,
     }).forEach(([name, fn]) => {
+      logger.verbose(`binding ${name}`);
       this[name] = fn.bind(this);
-    });
+    }, this);
   }
 
   async process() {
@@ -78,6 +82,13 @@ class WasmPackAsset extends Asset {
      * this.isMainFile = false;
      */
     await this.getCargoConfig();
+    logger.verbose(`cargoConfig:`);
+    JSON.stringify(this.cargoConfig, null, 2)
+      .split('\n')
+      .forEach(line => logger.verbose(line));
+    logger.verbose(`cargoDir: ${this.cargoDir}`);
+    logger.verbose(`isMainFile: ${this.isMainFile}`);
+
     await cargoInstall('wasm-pack');
     await cargoInstall('wasm-bindgen', 'wasm-bindgen-cli');
 
@@ -95,6 +106,11 @@ class WasmPackAsset extends Asset {
        * this.initPath = '';
        */
       await this.postBuild();
+      logger.verbose(`pkgDir: ${this.pkgDir}`);
+      logger.verbose(`rustName: ${this.rustName}`);
+      logger.verbose(`depsPath: ${this.depsPath}`);
+      logger.verbose(`wasmPath: ${this.wasmPath}`);
+      logger.verbose(`initPath: ${this.initPath}`);
     } else {
       throw new Error(
         `Couldn't figure out what to do with ${
