@@ -6,6 +6,7 @@ const { exec, proc } = require('../child-process');
 const { isInstalled } = require('../cargo-install');
 
 /**
+ * pulled out from Parcel's RustAsset class:
  * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L13-L14
  */
 const RUST_TARGET = 'wasm32-unknown-unknown';

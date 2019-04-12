@@ -22,7 +22,7 @@ async function getBrowserLoaderString() {
     .replace('(function() {', '')
     .replace(
       'self.wasm_bindgen = Object.assign(init, __exports);',
-      loaderTemplate,
+      loaderTemplate(),
     )
     .replace('})();', '');
 }

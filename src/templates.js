@@ -4,7 +4,7 @@ export default wasm;
 ${lines.map(([, name]) => `export const ${name} = wasm.${name};`).join('\n')}
 `;
 
-const loaderTemplate = `\
+const loaderTemplate = () => `\
 const wasm_bindgen = Object.assign(init, __exports);
 
 module.exports = function loadWasmBundle(bundle) {
