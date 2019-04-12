@@ -1,19 +1,13 @@
 const path = require('path');
 
 const fs = require('@parcel/fs');
-const logger = require('@parcel/logger');
 
 const RustAsset = require('parcel-bundler/src/assets/RustAsset');
 
-const { exec, proc } = require('./child-process');
-const { cargoInstall, isInstalled } = require('./cargo-install');
-const { getCargoConfig, ensureCargoConfig } = require('./mixins/cargo-config');
+const { cargoInstall } = require('./cargo-install');
 const { loaderTemplate, bindgenTemplate } = require('./templates');
-
-/**
- * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L13-L14
- */
-const RUST_TARGET = 'wasm32-unknown-unknown';
+const { getCargoConfig, ensureCargoConfig } = require('./mixins/cargo-config');
+const { wasmPackBuild, postBuild, getDepsPath } = require('./mixins/wasm-pack');
 
 function* matches(regex, str) {
   let match;
@@ -30,13 +24,18 @@ class WasmPackRustAsset extends RustAsset {
     this.dir = path.dirname(this.name);
 
     this.getCargoConfig = getCargoConfig.bind(this);
-    this.ensureCargoConfig = ensureCargoConfig.bind(this);
-
     /*
     this.cargoConfig = {};
     this.cargoDir = '';
     this.isMainFile = false;
+    */
 
+    this.ensureCargoConfig = ensureCargoConfig.bind(this);
+
+    this.wasmPackBuild = wasmPackBuild.bind(this);
+
+    this.postBuild = postBuild.bind(this);
+    /*
     this.pkgDir = '';
     this.rustName = '';
 
@@ -44,6 +43,8 @@ class WasmPackRustAsset extends RustAsset {
     this.wasmPath = '';
     this.initPath = '';
     */
+
+    this.getDepsPath = getDepsPath.bind(this);
   }
 
   async parse() {
@@ -68,56 +69,6 @@ class WasmPackRustAsset extends RustAsset {
         }. It should be a "main file" (lib.rs or main.rs) or a Cargo.toml`,
       );
     }
-  }
-
-  async wasmPackBuild() {
-    const { cargoDir } = this;
-
-    const args = [
-      '--verbose',
-      'build',
-      ...(isInstalled('wasm-bindgen') ? ['-m', 'no-install'] : []),
-      '--target',
-      /**
-       * valid ParcelJS targets are browser, electron, and node
-       * @see: https://parceljs.org/cli.html#target
-       *
-       * valid wasm-pack targets are bundler, web, nodejs, and no-modules
-       * @see: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html#deploying-rust-and-webassembly
-       */
-      ...(this.options.target === 'browser' ? ['no-modules'] : ['nodejs']),
-    ];
-
-    logger.log(`running \`wasm-pack ${args.join(' ')}\``);
-    await proc('wasm-pack', args, { cwd: cargoDir });
-  }
-
-  async postBuild() {
-    const { cargoConfig, cargoDir } = this;
-
-    this.pkgDir = path.join(cargoDir, 'pkg');
-    this.rustName = cargoConfig.package.name.replace(/-/g, '_');
-
-    this.depsPath = await this.getDepsPath();
-
-    this.wasmPath = path.join(this.pkgDir, `${this.rustName}_bg.wasm`);
-    this.initPath = path.join(this.pkgDir, `${this.rustName}.js`);
-  }
-
-  async getDepsPath() {
-    const { cargoDir, rustName } = this;
-
-    // Get output file paths
-    const { stdout } = await exec(
-      'cargo',
-      ['--verbose', 'metadata', '--format-version', '1'],
-      {
-        cwd: cargoDir,
-      },
-    );
-
-    const { target_directory: targetDir } = JSON.parse(stdout);
-    return path.join(targetDir, RUST_TARGET, 'release', `${rustName}.d`);
   }
 
   async generate() {

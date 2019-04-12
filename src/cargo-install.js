@@ -9,24 +9,24 @@ const isInstalled = cmdOrBin => installed[cmdOrBin];
 
 function cargoInstall(cmd, bin) {
   bin || (bin = cmd);
-  logger.log(`installing ${bin} for ${cmd}`);
+  logger.verbose(`installing ${bin} for ${cmd}`);
 
   if (installed[bin]) {
-    logger.log(`${cmd} already installed, skipping`);
+    logger.verbose(`${cmd} already installed, skipping`);
     return;
   }
 
   return commandExists(cmd)
     .then(() => {
-      logger.log(`${cmd} already installed, skipping`);
+      logger.verbose(`${cmd} already installed, skipping`);
       installed[cmd] = installed[bin] = true;
     })
     .catch(() =>
       proc('cargo', ['--verbose', 'install', bin])
         .then((/* stdout */) => {
           installed[cmd] = installed[bin] = true;
-          logger.log(`${cmd} installed successfully!`);
-          // stdout.split('\n').forEach(line => logger.log(line));
+          logger.verbose(`${cmd} installed successfully!`);
+          // stdout.split('\n').forEach(line => logger.verbose(line));
         })
         .catch((/* stderr */) => {
           installed[cmd] = installed[bin] = false;

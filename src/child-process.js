@@ -20,7 +20,7 @@ function proc(bin, args, opts) {
       if (stdoutLine.includes('\n')) {
         stdout += stdoutLine;
         const lines = stdoutLine.split('\n');
-        lines.slice(0, -1).forEach(line => logger.log(line));
+        lines.slice(0, -1).forEach(line => logger.verbose(line));
         stdoutLine = lines.slice(-1)[0];
       }
     });
@@ -31,7 +31,7 @@ function proc(bin, args, opts) {
       if (stderrLine.includes('\n')) {
         stderr += stderrLine;
         const lines = stderrLine.split('\n');
-        lines.slice(0, -1).forEach(line => logger.log(line));
+        lines.slice(0, -1).forEach(line => logger.verbose(line));
         stderrLine = lines.slice(-1)[0];
       }
     });
