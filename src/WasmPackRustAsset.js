@@ -8,6 +8,7 @@ const RustAsset = require('parcel-bundler/src/assets/RustAsset');
 const { exec, proc } = require('./child-process');
 const { cargoInstall, isInstalled } = require('./cargo-install');
 const { getCargoConfig, ensureCargoConfig } = require('./mixins/cargo-config');
+const { loaderTemplate, bindgenTemplate } = require('./templates');
 
 /**
  * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L13-L14
@@ -120,36 +121,47 @@ class WasmPackRustAsset extends RustAsset {
   }
 
   async generate() {
-    const { dir, initPath, wasmPath } = this;
+    return this.options.target === 'browser'
+      ? await this.generateBrowser()
+      : await this.generateElectronOrNode();
+  }
 
-    const loader = (await fs.readFile(initPath))
-      .toString()
-      .replace('(function() {', '')
-      .replace(
-        'self.wasm_bindgen = Object.assign(init, __exports);',
-        `\
-const wasm_bindgen = Object.assign(init, __exports);
-module.exports = function loadWasmBundle(bundle) {
-  return wasm_bindgen(bundle).then(() => __exports);
-};
-`,
-      )
-      .replace('})();', '');
+  async generateBrowser() {
+    const loader = await this.getBrowserLoaderString();
     await fs.writeFile(require.resolve('./loader.js'), loader);
-
-    const lines = Array.from(matches(/__exports.(\w+)/g, loader));
-    const bindgen = `\
-import wasm from '${path.relative(dir, wasmPath)}';
-export default wasm;
-${lines.map(([, name]) => `export const ${name} = wasm.${name};`).join('\n')}
-`;
 
     return [
       {
         type: 'js',
-        value: bindgen,
+        value: this.getBrowserBindgenString(loader),
       },
     ];
+  }
+
+  async getBrowserLoaderString() {
+    const { initPath } = this;
+
+    return (await fs.readFile(initPath))
+      .toString()
+      .replace('(function() {', '')
+      .replace(
+        'self.wasm_bindgen = Object.assign(init, __exports);',
+        loaderTemplate,
+      )
+      .replace('})();', '');
+  }
+
+  getBrowserBindgenString(loader) {
+    const { dir, wasmPath } = this;
+
+    return bindgenTemplate(
+      path.relative(dir, wasmPath),
+      Array.from(matches(/__exports.(\w+)/g, loader)),
+    );
+  }
+
+  async generateElectronOrNode() {
+    return [];
   }
 }
 
