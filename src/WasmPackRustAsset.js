@@ -16,6 +16,13 @@ const { cargoInstall, isInstalled } = require('./cargo-install');
 const RUST_TARGET = 'wasm32-unknown-unknown';
 const MAIN_FILES = ['src/lib.rs', 'src/main.rs'];
 
+function* matches(regex, str) {
+  let match;
+  while ((match = regex.exec(str)) !== null) {
+    yield match;
+  }
+}
+
 class WasmPackRustAsset extends RustAsset {
   constructor(name, options) {
     super(name, options);
@@ -133,7 +140,7 @@ class WasmPackRustAsset extends RustAsset {
        * valid wasm-pack targets are bundler, web, nodejs, and no-modules
        * @see: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html#deploying-rust-and-webassembly
        */
-      ...(this.options.target === 'browser' ? ['web'] : ['nodejs']),
+      ...(this.options.target === 'browser' ? ['no-modules'] : ['nodejs']),
     ];
 
     logger.log(`running \`wasm-pack ${args.join(' ')}\``);
@@ -169,24 +176,34 @@ class WasmPackRustAsset extends RustAsset {
   }
 
   async generate() {
-    const { dir, wasmPath, initPath } = this;
+    const { dir, initPath, wasmPath } = this;
 
-    const relativePath = path.relative(dir, initPath);
-    const requirePath = path.join(
-      path.dirname(relativePath),
-      path.basename(relativePath, '.js'),
-    );
-    const bundlePath = this.addURLDependency(path.relative(dir, wasmPath));
+    const loader = (await fs.readFile(initPath))
+      .toString()
+      .replace('(function() {', '')
+      .replace(
+        'self.wasm_bindgen = Object.assign(init, __exports);',
+        `\
+const wasm_bindgen = Object.assign(init, __exports);
+module.exports = function loadWasmBundle(bundle) {
+  return wasm_bindgen(bundle).then(() => __exports);
+};
+`,
+      )
+      .replace('})();', '');
+    await fs.writeFile(require.resolve('./loader.js'), loader);
 
-    const loader = `\
-const { default: init } = require('${requirePath}');
-module.exports = init('${bundlePath}');
+    const lines = Array.from(matches(/__exports.(\w+)/g, loader));
+    const bindgen = `\
+import wasm from '${path.relative(dir, wasmPath)}';
+export default wasm;
+${lines.map(([, name]) => `export const ${name} = wasm.${name};`).join('\n')}
 `;
 
     return [
       {
         type: 'js',
-        value: loader,
+        value: bindgen,
       },
     ];
   }
