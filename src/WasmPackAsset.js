@@ -128,8 +128,10 @@ class WasmPackAsset extends Asset {
 
     const loader =
       this.options.target === 'browser'
-        ? await this.generateBrowserLoader()
-        : await this.generateElectronOrNodeLoader();
+        ? await this.getBrowserLoaderString()
+        : await this.getElectronOrNodeLoaderString();
+
+    await fs.writeFile(require.resolve('./loader.js'), loader);
 
     const fromPath = rel(dir, wasmPath);
     const exportLines = Array.from(matches(/__exports.(\w+)/g, loader));
@@ -247,16 +249,9 @@ class WasmPackAsset extends Asset {
     return path.join(targetDir, RUST_TARGET, 'release', `${rustName}.d`);
   }
 
-  async generateBrowserLoader() {
+  async getBrowserLoaderString() {
     const { initPath } = this;
 
-    const loader = await this.getBrowserLoaderString(initPath);
-    await fs.writeFile(require.resolve('./loader.js'), loader);
-
-    return loader;
-  }
-
-  async getBrowserLoaderString(initPath) {
     return (await fs.readFile(initPath))
       .toString()
       .replace('(function() {', '')
@@ -267,16 +262,9 @@ class WasmPackAsset extends Asset {
       .replace('})();', '');
   }
 
-  async generateElectronOrNodeLoader() {
+  async getElectronOrNodeLoaderString() {
     const { initPath, rustName } = this;
 
-    const loader = await this.getElectronOrNodeLoaderString(initPath, rustName);
-    await fs.writeFile(require.resolve('./loader.js'), loader);
-
-    return loader;
-  }
-
-  async getElectronOrNodeLoaderString(initPath, rustName) {
     /**
      * matches everything from `function init(module_or_path, maybe_memory) {`
      * to `self.wasm_bindgen = Object.assign(init, __exports);` and captures the
