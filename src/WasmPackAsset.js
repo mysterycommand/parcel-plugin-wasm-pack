@@ -203,8 +203,8 @@ class WasmPackAsset extends Asset {
     const args = [
       '--verbose',
       'build',
-      ...(isInstalled('wasm-bindgen') ? ['-m', 'no-install'] : []),
       ...(options.production ? ['--release'] : ['--dev']),
+      ...(isInstalled('wasm-bindgen') ? ['-m', 'no-install'] : []),
       '--target',
       /**
        * valid ParcelJS targets are browser, electron, and node
