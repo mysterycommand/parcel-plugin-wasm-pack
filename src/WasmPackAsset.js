@@ -38,7 +38,6 @@ class WasmPackAsset extends Asset {
 
     if (!this.isWasm) {
       // if this isn't `*.rs` or `Cargo.toml` then it's just a vanilla `*.toml`
-      // file and we don't need to bother with any of this mixin/state stuff
       return;
     }
 
