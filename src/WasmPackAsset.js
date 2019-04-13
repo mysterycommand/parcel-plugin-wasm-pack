@@ -295,10 +295,10 @@ class WasmPackAsset extends Asset {
      */
     const init = new RegExp(
       [
-        `^(?:function init\\(module_or_path, maybe_memory\\) {)`,
-        `return result(\\.then\\(\\({instance, module}\\) => {`,
-        `}\\);)`,
-        `(?:self\\.wasm_bindgen = Object\\.assign\\(init, __exports\\);)$`,
+        '^(?:function init\\(module_or_path, maybe_memory\\) {)',
+        'return result(\\.then\\(\\({instance, module}\\) => {',
+        '}\\);)',
+        '(?:self\\.wasm_bindgen = Object\\.assign\\(init, __exports\\);)$',
       ].join('.*'),
       'gms',
     );
