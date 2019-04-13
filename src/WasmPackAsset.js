@@ -1,18 +1,27 @@
 const path = require('path');
 
+const toml = require('@iarna/toml');
+const fs = require('@parcel/fs');
 const logger = require('@parcel/logger');
 
 const { Asset } = require('parcel-bundler');
 const RustAsset = require('parcel-bundler/src/assets/RustAsset');
 const TomlAsset = require('parcel-bundler/src/assets/TOMLAsset');
+const config = require('parcel-bundler/src/utils/config');
 
 const { cargoInstall } = require('./cargo-install');
-const { getCargoConfig, ensureCargoConfig } = require('./mixins/cargo-config');
+
 const { wasmPackBuild, postBuild, getDepsPath } = require('./mixins/wasm-pack');
 const {
   generateBrowser,
   generateElectronOrNode,
 } = require('./mixins/generators');
+
+/**
+ * pulled out from Parcel's RustAsset class:
+ * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L13-L14
+ */
+const MAIN_FILES = ['src/lib.rs', 'src/main.rs'];
 
 class WasmPackAsset extends Asset {
   get isWasm() {
@@ -36,10 +45,6 @@ class WasmPackAsset extends Asset {
     this.dir = path.dirname(this.name);
 
     Object.entries({
-      // @see: './mixins/cargo-config'
-      getCargoConfig,
-      ensureCargoConfig,
-
       // @see: './mixins/wasm-pack'
       wasmPackBuild,
       postBuild,
@@ -136,6 +141,59 @@ class WasmPackAsset extends Asset {
     return this.options.target === 'browser'
       ? await this.generateBrowser()
       : await this.generateElectronOrNode();
+  }
+
+  /**
+   * pulled out from Parcel's RustAsset class:
+   * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L40-L55
+   */
+  async getCargoConfig() {
+    // See if there is a Cargo config in the project
+    let cargoConfig = await this.getConfig(['Cargo.toml']);
+    let cargoDir;
+    let isMainFile = false;
+
+    if (cargoConfig) {
+      const mainFiles = MAIN_FILES.slice();
+      if (cargoConfig.lib && cargoConfig.lib.path) {
+        mainFiles.push(cargoConfig.lib.path);
+      }
+
+      cargoDir = path.dirname(await config.resolve(this.name, ['Cargo.toml']));
+      isMainFile =
+        mainFiles.some(file => path.join(cargoDir, file) === this.name) ||
+        this.basename === 'Cargo.toml';
+    }
+
+    this.cargoConfig = cargoConfig;
+    this.cargoDir = cargoDir;
+    this.isMainFile = isMainFile;
+  }
+
+  /**
+   * pulled out from Parcel's RustAsset class:
+   * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L108-L123
+   */
+  async ensureCargoConfig() {
+    const { cargoConfig, cargoDir } = this;
+
+    // Ensure the cargo config has cdylib as the crate-type
+    if (!cargoConfig.lib) {
+      cargoConfig.lib = {};
+    }
+
+    if (!Array.isArray(cargoConfig.lib['crate-type'])) {
+      cargoConfig.lib['crate-type'] = [];
+    }
+
+    if (!cargoConfig.lib['crate-type'].includes('cdylib')) {
+      cargoConfig.lib['crate-type'].push('cdylib');
+
+      await fs.writeFile(
+        path.join(cargoDir, 'Cargo.toml'),
+        toml.stringify(cargoConfig),
+      );
+    }
   }
 }
 

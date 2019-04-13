@@ -1,36 +1,11 @@
-const path = require('path');
-
 const fs = require('@parcel/fs');
 
+const { rel, matches } = require('../helpers');
 const {
   bindgenTemplate,
   browserLoaderTemplate,
   nodeOrElectronLoaderTemplate,
 } = require('../templates');
-
-function rel(from, to) {
-  let relativePath = path.relative(from, to);
-
-  if (relativePath[0] !== '.') {
-    relativePath = `./${relativePath}`;
-  }
-
-  return relativePath.replace('\\', '/');
-}
-
-function* matches(regex, str) {
-  let match;
-  while ((match = regex.exec(str)) !== null) {
-    yield match;
-  }
-}
-
-function getBindgenString(fromPath, loader) {
-  return bindgenTemplate(
-    fromPath,
-    Array.from(matches(/__exports.(\w+)/g, loader)),
-  );
-}
 
 async function generateBrowser() {
   const { dir, initPath, wasmPath } = this;
@@ -43,7 +18,10 @@ async function generateBrowser() {
   return [
     {
       type: 'js',
-      value: getBindgenString(fromPath, loader),
+      value: bindgenTemplate(
+        fromPath,
+        Array.from(matches(/__exports.(\w+)/g, loader)),
+      ),
     },
   ];
 }
@@ -70,21 +48,37 @@ async function generateElectronOrNode() {
   return [
     {
       type: 'js',
-      value: getBindgenString(fromPath, loader),
+      value: bindgenTemplate(
+        fromPath,
+        Array.from(matches(/__exports.(\w+)/g, loader)),
+      ),
     },
   ];
 }
 
-const initStart = `^(?:function init\\(module_or_path, maybe_memory\\) {)`;
-const thenStart = `return result(\\.then\\(\\({instance, module}\\) => {`;
-const thenEnd = `}\\);)`;
-const initEnd = `(?:self\\.wasm_bindgen = Object\\.assign\\(init, __exports\\);)$`;
-const init = new RegExp(
-  `${initStart}.*${thenStart}.*${thenEnd}.*${initEnd}`,
-  'gms',
-);
-
 async function getElectronOrNodeLoaderString(initPath, rustName) {
+  const a = `^(?:function init\\(module_or_path, maybe_memory\\) {)`;
+  const b = `return result(\\.then\\(\\({instance, module}\\) => {`;
+  const c = `}\\);)`;
+  const d = `(?:self\\.wasm_bindgen = Object\\.assign\\(init, __exports\\);)$`;
+
+  /**
+   * matches everything from `function init(module_or_path, maybe_memory) {` to
+   * `self.wasm_bindgen = Object.assign(init, __exports);` and captures the
+   * final `then` clause of `wasm-pack`'s `no-modules` initializer, which is
+   * what does the assignment to `wasm` ... it looks like this:
+   *
+   * ```
+   * .then(({instance, module}) => {
+   *   wasm = instance.exports;
+   *   init.__wbindgen_wasm_module = module;
+   *
+   *   return wasm;
+   * });
+   * ```
+   */
+  const init = new RegExp(`${a}.*${b}.*${c}.*${d}`, 'gms');
+
   return (await fs.readFile(initPath))
     .toString()
     .replace(
