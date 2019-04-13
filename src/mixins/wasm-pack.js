@@ -26,7 +26,7 @@ async function wasmPackBuild() {
      * valid wasm-pack targets are bundler, web, nodejs, and no-modules
      * @see: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html#deploying-rust-and-webassembly
      */
-    ...(this.options.target === 'browser' ? ['no-modules'] : ['nodejs']),
+    'no-modules',
   ];
 
   logger.verbose(`running \`wasm-pack ${args.join(' ')}\``);
