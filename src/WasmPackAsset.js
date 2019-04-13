@@ -9,9 +9,9 @@ const RustAsset = require('parcel-bundler/src/assets/RustAsset');
 const TomlAsset = require('parcel-bundler/src/assets/TOMLAsset');
 const config = require('parcel-bundler/src/utils/config');
 
-const { cargoInstall } = require('./cargo-install');
+const { cargoInstall, isInstalled } = require('./cargo-install');
+const { exec, proc } = require('./helpers');
 
-const { wasmPackBuild, postBuild, getDepsPath } = require('./mixins/wasm-pack');
 const {
   generateBrowser,
   generateElectronOrNode,
@@ -21,6 +21,7 @@ const {
  * pulled out from Parcel's RustAsset class:
  * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L13-L14
  */
+const RUST_TARGET = 'wasm32-unknown-unknown';
 const MAIN_FILES = ['src/lib.rs', 'src/main.rs'];
 
 class WasmPackAsset extends Asset {
@@ -45,11 +46,6 @@ class WasmPackAsset extends Asset {
     this.dir = path.dirname(this.name);
 
     Object.entries({
-      // @see: './mixins/wasm-pack'
-      wasmPackBuild,
-      postBuild,
-      getDepsPath,
-
       // @see: './mixins/generators'
       generateBrowser,
       generateElectronOrNode,
@@ -194,6 +190,56 @@ class WasmPackAsset extends Asset {
         toml.stringify(cargoConfig),
       );
     }
+  }
+
+  async wasmPackBuild() {
+    const { cargoDir } = this;
+
+    const args = [
+      '--verbose',
+      'build',
+      ...(isInstalled('wasm-bindgen') ? ['-m', 'no-install'] : []),
+      '--target',
+      /**
+       * valid ParcelJS targets are browser, electron, and node
+       * @see: https://parceljs.org/cli.html#target
+       *
+       * valid wasm-pack targets are bundler, web, nodejs, and no-modules
+       * @see: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html#deploying-rust-and-webassembly
+       */
+      'no-modules',
+    ];
+
+    logger.verbose(`running \`wasm-pack ${args.join(' ')}\``);
+    await proc('wasm-pack', args, { cwd: cargoDir });
+  }
+
+  async postBuild() {
+    const { cargoConfig, cargoDir } = this;
+
+    this.pkgDir = path.join(cargoDir, 'pkg');
+    this.rustName = cargoConfig.package.name.replace(/-/g, '_');
+
+    this.depsPath = await this.getDepsPath();
+
+    this.wasmPath = path.join(this.pkgDir, `${this.rustName}_bg.wasm`);
+    this.initPath = path.join(this.pkgDir, `${this.rustName}.js`);
+  }
+
+  async getDepsPath() {
+    const { cargoDir, rustName } = this;
+
+    // Get output file paths
+    const { stdout } = await exec(
+      'cargo',
+      ['--verbose', 'metadata', '--format-version', '1'],
+      {
+        cwd: cargoDir,
+      },
+    );
+
+    const { target_directory: targetDir } = JSON.parse(stdout);
+    return path.join(targetDir, RUST_TARGET, 'release', `${rustName}.d`);
   }
 }
 
