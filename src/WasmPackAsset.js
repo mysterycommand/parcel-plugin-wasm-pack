@@ -198,12 +198,13 @@ class WasmPackAsset extends Asset {
   }
 
   async wasmPackBuild() {
-    const { cargoDir } = this;
+    const { options, cargoDir } = this;
 
     const args = [
       '--verbose',
       'build',
       ...(isInstalled('wasm-bindgen') ? ['-m', 'no-install'] : []),
+      ...(options.production ? ['--release'] : ['--dev']),
       '--target',
       /**
        * valid ParcelJS targets are browser, electron, and node
