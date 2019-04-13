@@ -4,10 +4,12 @@ module.exports = function loadWasmBundle(bundle) {
 };
 `;
 
-const bindgenTemplate = (from, lines) => `\
-import wasm from '${from}';
+const bindgenTemplate = (fromPath, exportLines) => `\
+import wasm from '${fromPath}';
 export default wasm;
-${lines.map(([, name]) => `export const ${name} = wasm.${name};`).join('\n')}
+${exportLines
+  .map(([, name]) => `export const ${name} = wasm.${name};`)
+  .join('\n')}
 `;
 
 const browserLoaderTemplate = () => `\

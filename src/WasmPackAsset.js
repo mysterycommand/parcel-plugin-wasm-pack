@@ -132,14 +132,13 @@ class WasmPackAsset extends Asset {
         : await this.generateElectronOrNodeLoader();
 
     const fromPath = rel(dir, wasmPath);
+    const exportLines = Array.from(matches(/__exports.(\w+)/g, loader));
+    const bindgen = bindgenTemplate(fromPath, exportLines);
 
     return [
       {
         type: 'js',
-        value: bindgenTemplate(
-          fromPath,
-          Array.from(matches(/__exports.(\w+)/g, loader)),
-        ),
+        value: bindgen,
       },
     ];
   }
