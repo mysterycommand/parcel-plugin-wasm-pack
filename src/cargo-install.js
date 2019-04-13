@@ -1,7 +1,7 @@
 const commandExists = require('command-exists');
 const logger = require('@parcel/logger');
 
-const { proc } = require('./child-process');
+const { proc } = require('./helpers');
 
 const installed = {};
 

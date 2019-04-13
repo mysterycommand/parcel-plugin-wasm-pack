@@ -2,7 +2,7 @@ const path = require('path');
 
 const logger = require('@parcel/logger');
 
-const { exec, proc } = require('../child-process');
+const { exec, proc } = require('../helpers');
 const { isInstalled } = require('../cargo-install');
 
 /**
