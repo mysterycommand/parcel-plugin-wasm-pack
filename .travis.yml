@@ -42,7 +42,6 @@ before_script:
 script:
   - yarn lint
   - yarn test
-  - yarn build
 
 after_success:
   - test $TRAVIS_PULL_REQUEST != "false" && npx semantic-release-github-pr
