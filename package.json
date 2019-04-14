@@ -3,9 +3,19 @@
   "version": "1.0.0",
   "description": "A Parcel plugin",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "LICENSE-APACHE",
+    "LICENSE-MIT",
+    "src/*.js"
+  ],
   "repository": "git@github.com:mysterycommand/parcel-plugin-wasm-pack.git",
   "author": "Matt Hayes <matt@mysterycommand.com>",
   "license": "(MIT OR Apache-2.0)",
+  "scripts": {
+    "lint": "eslint '**/*.js'",
+    "test": "jest"
+  },
   "engines": {
     "node": "10.15.3",
     "npm": "6.9.0",
@@ -23,10 +33,22 @@
     "command-exists": "1.2.8"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "3.0.2",
+    "@semantic-release/commit-analyzer": "6.1.0",
+    "@semantic-release/git": "7.0.8",
+    "@semantic-release/github": "5.2.10",
+    "@semantic-release/npm": "5.1.4",
+    "@semantic-release/release-notes-generator": "7.1.4",
     "commitizen": "3.0.7",
     "cz-conventional-changelog": "2.1.0",
+    "eslint": "5.16.0",
+    "eslint-config-prettier": "4.1.0",
+    "eslint-plugin-prettier": "3.0.1",
+    "jest": "24.7.1",
     "parcel-bundler": "1.12.3",
-    "prettier": "1.16.4"
+    "prettier": "1.16.4",
+    "semantic-release": "15.13.3",
+    "semantic-release-github-pr": "https://github.com/mysterycommand/semantic-release-github-pr.git#fix/34-and-35"
   },
   "peerDependencies": {
     "parcel-bundler": "1.12.3"
