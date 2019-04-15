@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v1.0.0...v1.0.1) (2019-04-15)
+
+
+### Bug Fixes
+
+* **.travis.yml:** update token ([8a64162](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/8a64162))
+
 # 1.0.0 (2019-04-14)
 
 
