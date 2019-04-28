@@ -234,7 +234,7 @@ class WasmPackAsset extends Asset {
   }
 
   async getDepsPath() {
-    const { cargoDir, rustName } = this;
+    const { cargoDir, options, rustName } = this;
 
     // Get output file paths
     const { stdout } = await exec(
@@ -246,7 +246,12 @@ class WasmPackAsset extends Asset {
     );
 
     const { target_directory: targetDir } = JSON.parse(stdout);
-    return path.join(targetDir, RUST_TARGET, 'release', `${rustName}.d`);
+    return path.join(
+      targetDir,
+      RUST_TARGET,
+      options.production ? 'release' : 'debug',
+      `${rustName}.d`,
+    );
   }
 
   async getBrowserLoaderString() {
