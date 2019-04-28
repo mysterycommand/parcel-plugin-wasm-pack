@@ -131,7 +131,7 @@ class WasmPackAsset extends Asset {
         ? await this.getBrowserLoaderString()
         : await this.getElectronOrNodeLoaderString();
 
-    await fs.writeFile(require.resolve('./loader.js'), loader);
+    // await fs.writeFile(require.resolve('./loader.js'), loader);
 
     const fromPath = rel(dir, wasmPath);
     const exportLines = Array.from(matches(/__exports.(\w+)/g, loader));
@@ -214,7 +214,7 @@ class WasmPackAsset extends Asset {
        * valid wasm-pack targets are bundler, web, nodejs, and no-modules
        * @see: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html#deploying-rust-and-webassembly
        */
-      'no-modules',
+      ...(options.target === 'browser' ? ['bundler'] : ['nodejs']),
     ];
 
     logger.verbose(`running \`wasm-pack ${args.join(' ')}\``);
