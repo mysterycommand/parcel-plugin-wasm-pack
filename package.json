@@ -1,6 +1,6 @@
 {
   "name": "parcel-plugin-wasm-pack",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Parcel plugin",
   "main": "index.js",
   "files": [
@@ -41,10 +41,10 @@
     "@semantic-release/github": "5.2.10",
     "@semantic-release/npm": "5.1.4",
     "@semantic-release/release-notes-generator": "7.1.4",
-    "commitizen": "3.0.7",
+    "commitizen": "3.1.1",
     "cz-conventional-changelog": "2.1.0",
     "eslint": "5.16.0",
-    "eslint-config-prettier": "4.1.0",
+    "eslint-config-prettier": "4.2.0",
     "eslint-plugin-prettier": "3.0.1",
     "jest": "24.7.1",
     "parcel-bundler": "1.12.3",
