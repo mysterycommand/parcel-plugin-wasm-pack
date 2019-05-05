@@ -61,3 +61,5 @@ typings/
 .next
 
 src/loader.js
+
+.vscode

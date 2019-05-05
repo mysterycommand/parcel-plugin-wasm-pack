@@ -54,21 +54,4 @@ function proc(bin, args, opts) {
   });
 }
 
-function rel(from, to) {
-  let relativePath = path.relative(from, to);
-
-  if (relativePath[0] !== '.') {
-    relativePath = `./${relativePath}`;
-  }
-
-  return relativePath.replace('\\', '/');
-}
-
-function* matches(regex, str) {
-  let match;
-  while ((match = regex.exec(str)) !== null) {
-    yield match;
-  }
-}
-
-module.exports = { exec, proc, rel, matches };
+module.exports = { exec, proc };

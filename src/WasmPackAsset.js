@@ -10,12 +10,7 @@ const TomlAsset = require('parcel-bundler/src/assets/TOMLAsset');
 const config = require('parcel-bundler/src/utils/config');
 
 const { cargoInstall, isInstalled } = require('./cargo-install');
-const { exec, matches, proc, rel } = require('./helpers');
-const {
-  bindgenTemplate,
-  browserLoaderTemplate,
-  nodeOrElectronLoaderTemplate,
-} = require('./templates');
+const { exec, proc } = require('./helpers');
 
 /**
  * pulled out from Parcel's RustAsset class:
@@ -124,18 +119,10 @@ class WasmPackAsset extends Asset {
       return TomlAsset.prototype.generate.call(this);
     }
 
-    const { dir, wasmPath } = this;
+    const { initPath, wasmPath } = this;
 
-    const loader =
-      this.options.target === 'browser'
-        ? await this.getBrowserLoaderString()
-        : await this.getElectronOrNodeLoaderString();
-
-    // await fs.writeFile(require.resolve('./loader.js'), loader);
-
-    const fromPath = rel(dir, wasmPath);
-    const exportLines = Array.from(matches(/__exports.(\w+)/g, loader));
-    const bindgen = bindgenTemplate(fromPath, exportLines);
+    this.addURLDependency(wasmPath);
+    const bindgen = await fs.readFile(initPath);
 
     return [
       {
@@ -214,7 +201,7 @@ class WasmPackAsset extends Asset {
        * valid wasm-pack targets are bundler, web, nodejs, and no-modules
        * @see: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html#deploying-rust-and-webassembly
        */
-      ...(options.target === 'browser' ? ['bundler'] : ['nodejs']),
+      ...(options.target === 'browser' ? ['web'] : ['nodejs']),
     ];
 
     logger.verbose(`running \`wasm-pack ${args.join(' ')}\``);
@@ -252,59 +239,6 @@ class WasmPackAsset extends Asset {
       options.production ? 'release' : 'debug',
       `${rustName}.d`,
     );
-  }
-
-  async getBrowserLoaderString() {
-    const { initPath } = this;
-
-    return (await fs.readFile(initPath))
-      .toString()
-      .replace('(function() {', '')
-      .replace(
-        'self.wasm_bindgen = Object.assign(init, __exports);',
-        browserLoaderTemplate(),
-      )
-      .replace('})();', '');
-  }
-
-  async getElectronOrNodeLoaderString() {
-    const { initPath, rustName } = this;
-
-    /**
-     * matches everything from `function init(module_or_path, maybe_memory) {`
-     * to `self.wasm_bindgen = Object.assign(init, __exports);` and captures the
-     * final `then` clause of `wasm-pack`'s `no-modules` initializer, which is
-     * what does the assignment to `wasm` ... it looks like this:
-     *
-     * ```
-     * .then(({instance, module}) => {
-     *   wasm = instance.exports;
-     *   init.__wbindgen_wasm_module = module;
-     *
-     *   return wasm;
-     * });
-     * ```
-     */
-    const init = new RegExp(
-      [
-        '^(?:function init\\(module_or_path, maybe_memory\\) {)',
-        'return result(\\.then\\(\\({instance, module}\\) => {',
-        '}\\);)',
-        '(?:self\\.wasm_bindgen = Object\\.assign\\(init, __exports\\);)$',
-      ].join('.*'),
-      'gms',
-    );
-
-    return (await fs.readFile(initPath))
-      .toString()
-      .replace(
-        '(function() {',
-        "const { TextEncoder, TextDecoder } = require('util');",
-      )
-      .replace(init, (_, finalThen) =>
-        nodeOrElectronLoaderTemplate(rustName, finalThen),
-      )
-      .replace('})();', '');
   }
 }
 
