@@ -119,15 +119,18 @@ class WasmPackAsset extends Asset {
       return TomlAsset.prototype.generate.call(this);
     }
 
-    const { initPath, wasmPath } = this;
+    const { dir, initPath, wasmPath } = this;
 
-    this.addURLDependency(wasmPath);
-    const bindgen = await fs.readFile(initPath);
+    await this.addDependency(path.relative(dir, wasmPath));
+    await this.addDependency(path.relative(dir, initPath));
 
     return [
       {
         type: 'js',
-        value: bindgen,
+        value: `\
+import init from '${path.relative(dir, initPath)}';
+module.exports = init(require('${path.relative(dir, wasmPath)}'));
+`,
       },
     ];
   }
