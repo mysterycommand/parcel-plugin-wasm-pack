@@ -121,6 +121,11 @@ class WasmPackAsset extends Asset {
 
     const { dir, initPath, wasmPath } = this;
 
+    const init = (await fs.readFile(initPath))
+      .toString()
+      .replace('return wasm;', 'return __exports');
+    await fs.writeFile(initPath, init);
+
     await this.addDependency(path.relative(dir, wasmPath));
     await this.addDependency(path.relative(dir, initPath));
 
