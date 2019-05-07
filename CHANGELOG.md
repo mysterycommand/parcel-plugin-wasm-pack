@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v1.0.2...v1.1.0) (2019-05-07)
+
+
+### Features
+
+* **loader:** add a generic loader ([cad7343](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/cad7343))
+
 ## [1.0.2](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v1.0.1...v1.0.2) (2019-04-28)
 
 
