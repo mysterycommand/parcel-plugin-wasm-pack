@@ -54,4 +54,14 @@ function proc(bin, args, opts) {
   });
 }
 
-module.exports = { exec, proc };
+function rel(from, to) {
+  let relativePath = path.relative(from, to);
+
+  if (relativePath[0] !== '.') {
+    relativePath = `./${relativePath}`;
+  }
+
+  return relativePath.replace('\\', '/');
+}
+
+module.exports = { exec, proc, rel };

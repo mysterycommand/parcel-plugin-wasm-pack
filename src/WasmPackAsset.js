@@ -232,9 +232,11 @@ module.exports = init(require('${path.relative(dir, wasmPath)}'));
       ['--verbose', 'metadata', '--format-version', '1'],
       {
         cwd: cargoDir,
+        maxBuffer: 1024 * 1024 * 2,
       },
     );
 
+    logger.verbose(JSON.stringify({ stdout }));
     const { target_directory: targetDir } = JSON.parse(stdout);
     return path.join(
       targetDir,

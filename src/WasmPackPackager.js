@@ -2,6 +2,8 @@ const path = require('path');
 
 const JSPackager = require('parcel-bundler/src/packagers/JSPackager');
 
+const { rel } = require('./helpers');
+
 const moduleTpl = (wasmName, wasmId, entryName) => `\
 require('${wasmName}')
   .then(wasm => {
@@ -25,14 +27,8 @@ class WasmPackPackager extends JSPackager {
 
     const { entryAsset } = this.bundle;
 
-    const wasmName = path.relative(
-      path.dirname(entryAsset.name),
-      wasmAsset.name,
-    );
-    const entryName = path.relative(
-      path.dirname(entryAsset.name),
-      entryAsset.name,
-    );
+    const wasmName = rel(path.dirname(entryAsset.name), wasmAsset.name);
+    const entryName = rel(path.dirname(entryAsset.name), entryAsset.name);
 
     /**
      * make sure we don't add the original entry to the final bundle's entries
