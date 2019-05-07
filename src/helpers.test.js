@@ -1,4 +1,4 @@
-const { exec, proc, rel, matches } = require('./helpers');
+const { exec, proc, rel } = require('./helpers');
 
 describe('exec', () => {
   it('should exist', () => {
@@ -15,11 +15,5 @@ describe('proc', () => {
 describe('rel', () => {
   it('should exist', () => {
     expect(rel).toBeDefined();
-  });
-});
-
-describe('matches', () => {
-  it('should exist', () => {
-    expect(matches).toBeDefined();
   });
 });

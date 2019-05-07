@@ -64,11 +64,4 @@ function rel(from, to) {
   return relativePath.replace('\\', '/');
 }
 
-function* matches(regex, str) {
-  let match;
-  while ((match = regex.exec(str)) !== null) {
-    yield match;
-  }
-}
-
-module.exports = { exec, proc, rel, matches };
+module.exports = { exec, proc, rel };
