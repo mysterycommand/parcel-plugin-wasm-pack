@@ -9,7 +9,7 @@ module.exports = {
       {
         message: `\
 [<%= nextRelease.version %>]\
-(https://github.com/fartts/superfluity/tree/<%= nextRelease.version%>)\
+(https://github.com/mysterycommand/parcel-plugin-wasm-pack/tree/<%= nextRelease.version%>)\
 - <%= new Date().toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'short',
