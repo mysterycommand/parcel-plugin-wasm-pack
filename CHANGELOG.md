@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v1.1.0...v2.0.0) (2019-05-08)
+
+
+### chore
+
+* bump major version (broke node) ([adc553b](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/adc553b)), closes [#17](https://github.com/mysterycommand/parcel-plugin-wasm-pack/issues/17)
+
+
+### BREAKING CHANGES
+
+* no longer builds node target correctly
+
 # [1.1.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v1.0.2...v1.1.0) (2019-05-07)
 
 
