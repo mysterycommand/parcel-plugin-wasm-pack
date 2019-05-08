@@ -19,6 +19,8 @@ const { exec, proc } = require('./helpers');
 const RUST_TARGET = 'wasm32-unknown-unknown';
 const MAIN_FILES = ['src/lib.rs', 'src/main.rs'];
 
+let isRustInstalling = false;
+
 class WasmPackAsset extends Asset {
   get isWasm() {
     return (
@@ -58,7 +60,11 @@ class WasmPackAsset extends Asset {
      * the wasm32-unknown-unknown target
      * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L66
      */
-    await RustAsset.prototype.installRust.call(this);
+    if (!isRustInstalling) {
+      isRustInstalling = true;
+      await RustAsset.prototype.installRust.call(this);
+      isRustInstalling = false;
+    }
 
     /**
      * calling `getCargoConfig` creates:
