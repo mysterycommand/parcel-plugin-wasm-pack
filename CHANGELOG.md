@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v2.0.1...v2.0.2) (2019-05-09)
+
+
+### Bug Fixes
+
+* **WasmPackAsset:** only await after the promise is cached ([9b401d4](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/9b401d4)), closes [#20](https://github.com/mysterycommand/parcel-plugin-wasm-pack/issues/20)
+
 ## [2.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v2.0.0...v2.0.1) (2019-05-09)
 
 
