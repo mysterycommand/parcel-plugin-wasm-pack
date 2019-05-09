@@ -1,3 +1,11 @@
+## [2.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v2.0.0...v2.0.1) (2019-05-09)
+
+
+### Bug Fixes
+
+* **WasmPackAsset:** make `isRustInstalling` a promise, assign it once and await that everywhere ([f4004f5](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/f4004f5))
+* empty commit to mark the fix ([4428e5b](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/4428e5b)), closes [#20](https://github.com/mysterycommand/parcel-plugin-wasm-pack/issues/20)
+
 # [2.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v1.1.0...v2.0.0) (2019-05-08)
 
 
