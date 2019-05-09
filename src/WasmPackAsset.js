@@ -66,7 +66,7 @@ class WasmPackAsset extends Asset {
      * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L66
      */
     if (isRustInstalling === undefined) {
-      isRustInstalling = await RustAsset.prototype.installRust.call(this);
+      isRustInstalling = RustAsset.prototype.installRust.call(this);
     }
     await isRustInstalling;
 
