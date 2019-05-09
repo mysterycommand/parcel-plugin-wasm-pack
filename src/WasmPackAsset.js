@@ -19,7 +19,7 @@ const { exec, proc } = require('./helpers');
 const RUST_TARGET = 'wasm32-unknown-unknown';
 const MAIN_FILES = ['src/lib.rs', 'src/main.rs'];
 
-let isRustInstalling = false;
+let isRustInstalling;
 
 class WasmPackAsset extends Asset {
   get isWasm() {
@@ -58,13 +58,17 @@ class WasmPackAsset extends Asset {
     /**
      * checks that 'rustup' is installed, installs the nightly toolchain, and
      * the wasm32-unknown-unknown target
+     *
+     * if multiple `WasmPackAsset`s exist we want them all to `await` the same
+     * `installRust` call ... multiple calls will clobber each other, but none
+     * should proceed until this process is complete
+     *
      * @see: https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/assets/RustAsset.js#L66
      */
-    if (!isRustInstalling) {
-      isRustInstalling = true;
-      await RustAsset.prototype.installRust.call(this);
-      isRustInstalling = false;
+    if (isRustInstalling === undefined) {
+      isRustInstalling = await RustAsset.prototype.installRust.call(this);
     }
+    await isRustInstalling;
 
     /**
      * calling `getCargoConfig` creates:
