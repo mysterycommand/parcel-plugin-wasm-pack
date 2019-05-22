@@ -1,3 +1,15 @@
+# [3.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v2.0.2...v3.0.0) (2019-05-22)
+
+
+### Code Refactoring
+
+* **WasmPackAsset:** export `exports` not `__exports` ... technically bad JS but it works ([fecc5df](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/fecc5df))
+
+
+### BREAKING CHANGES
+
+* **WasmPackAsset:** anything that mistakenly relied on stuff in `__exports` won't get that any more
+
 ## [2.0.2](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v2.0.1...v2.0.2) (2019-05-09)
 
 
