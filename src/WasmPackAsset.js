@@ -10,7 +10,7 @@ const TomlAsset = require('parcel-bundler/src/assets/TOMLAsset');
 const config = require('parcel-bundler/src/utils/config');
 
 const { cargoInstall, isInstalled } = require('./cargo-install');
-const { exec, proc } = require('./helpers');
+const { exec, proc, matches } = require('./helpers');
 
 /**
  * pulled out from Parcel's RustAsset class:
@@ -131,9 +131,13 @@ class WasmPackAsset extends Asset {
 
     const { dir, initPath, wasmPath } = this;
 
-    const init = (await fs.readFile(initPath))
-      .toString()
-      .replace('return wasm;', 'return __exports');
+    const initStr = (await fs.readFile(initPath)).toString();
+
+    const exportNames = Array.from(
+      matches(/export [const,function,class] (\w+)/g, initStr),
+    );
+    console.log(exportNames);
+    const init = initStr.replace('return wasm;', 'return __exports');
     await fs.writeFile(initPath, init);
 
     await this.addDependency(path.relative(dir, wasmPath));
