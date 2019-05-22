@@ -131,22 +131,9 @@ class WasmPackAsset extends Asset {
 
     const { dir, initPath, wasmPath } = this;
 
-    const initStr = (await fs.readFile(initPath)).toString();
-
-    const exportNames = Array.from(
-      matches(/export\ (?:class|const|function)\ (\w+)/g, initStr).map(
-        ([_, name]) => name,
-      ),
-    );
-    `
-
-${JSON.stringify(exportNames, null, 2)}
-
-`
-      .split('\n')
-      .forEach(line => logger.log(line));
-
-    const init = initStr.replace('return wasm;', 'return __exports');
+    const init = (await fs.readFile(initPath))
+      .toString()
+      .replace('return wasm;', 'return exports');
     await fs.writeFile(initPath, init);
 
     await this.addDependency(path.relative(dir, wasmPath));
@@ -254,10 +241,9 @@ module.exports = init(require('${path.relative(dir, wasmPath)}'));
   async getDepsPath() {
     const { cargoDir, options, rustName } = this;
 
-    // Get output file paths
     const { stdout } = await exec(
       'cargo',
-      ['--verbose', 'metadata', '--format-version', '1'],
+      ['--verbose', 'metadata', '--format-version', '1', '--no-deps'],
       {
         cwd: cargoDir,
         maxBuffer: 1024 * 1024 * 2,
@@ -266,7 +252,7 @@ module.exports = init(require('${path.relative(dir, wasmPath)}'));
 
     JSON.stringify(JSON.parse(stdout), null, 2)
       .split('\n')
-      .forEach(line => logger.log(line));
+      .forEach(line => logger.verbose(line));
 
     const { target_directory: targetDir } = JSON.parse(stdout);
     return path.join(
