@@ -134,9 +134,18 @@ class WasmPackAsset extends Asset {
     const initStr = (await fs.readFile(initPath)).toString();
 
     const exportNames = Array.from(
-      matches(/export [const,function,class] (\w+)/g, initStr),
+      matches(/export\ (?:class|const|function)\ (\w+)/g, initStr).map(
+        ([_, name]) => name,
+      ),
     );
-    console.log(exportNames);
+    `
+
+${JSON.stringify(exportNames, null, 2)}
+
+`
+      .split('\n')
+      .forEach(line => logger.log(line));
+
     const init = initStr.replace('return wasm;', 'return __exports');
     await fs.writeFile(initPath, init);
 
@@ -255,7 +264,10 @@ module.exports = init(require('${path.relative(dir, wasmPath)}'));
       },
     );
 
-    logger.verbose(JSON.stringify({ stdout }));
+    JSON.stringify(JSON.parse(stdout), null, 2)
+      .split('\n')
+      .forEach(line => logger.log(line));
+
     const { target_directory: targetDir } = JSON.parse(stdout);
     return path.join(
       targetDir,
