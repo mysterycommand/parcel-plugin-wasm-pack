@@ -5,14 +5,14 @@ const JSPackager = require('parcel-bundler/src/packagers/JSPackager');
 const { rel } = require('./helpers');
 
 const moduleTpl = (wasmName, wasmId, entryName) => `\
-require('${wasmName}')
+require("${wasmName}")
   .then(wasm => {
     // replace the entry in the cache with the loaded wasm module
-    module.bundle.cache['${wasmId}'] = null;
-    module.bundle.register('${wasmId}', wasm);
+    module.bundle.cache["${wasmId}"] = null;
+    module.bundle.register("${wasmId}", wasm);
   })
   .then(() => {
-    require('${entryName}');
+    require("${entryName}");
   });
 `;
 
