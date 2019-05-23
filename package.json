@@ -19,7 +19,9 @@
     "test": "jest"
   },
   "engines": {
-    "node": "10.15.3"
+    "node": "10.15.3",
+    "npm": "6.9.0",
+    "yarn": "1.16.0"
   },
   "config": {
     "commitizen": {
