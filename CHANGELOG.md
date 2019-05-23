@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.0...v3.0.1) (2019-05-23)
+
+
+### Bug Fixes
+
+* **package.json:** just an empty commit to mark the "fix" for semver ([a64b5b6](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/a64b5b6)), closes [#30](https://github.com/mysterycommand/parcel-plugin-wasm-pack/issues/30)
+
 # [3.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v2.0.2...v3.0.0) (2019-05-22)
 
 
