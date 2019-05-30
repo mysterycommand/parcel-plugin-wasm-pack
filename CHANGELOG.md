@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.1...v3.0.2) (2019-05-30)
+
+
+### Bug Fixes
+
+* **build:** be less strict about package managers, and Node versions ([b0d6502](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/b0d6502)), closes [#32](https://github.com/mysterycommand/parcel-plugin-wasm-pack/issues/32)
+
 ## [3.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.0...v3.0.1) (2019-05-23)
 
 
