@@ -13,7 +13,7 @@
   "author": "Matt Hayes <matt@mysterycommand.com>",
   "license": "(MIT OR Apache-2.0)",
   "scripts": {
-    "reset": "yarn clean node_modules/",
+    "reset": "yarn clean node_modules/ && yarn install",
     "clean": "rm -rf coverage/",
     "lint": "eslint '**/*.js'",
     "test": "jest"
