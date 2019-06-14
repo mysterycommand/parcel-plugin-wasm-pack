@@ -109,9 +109,7 @@ class WasmPackAsset extends Asset {
       logger.verbose(`initPath: ${this.initPath}`);
     } else {
       throw new Error(
-        `Couldn't figure out what to do with ${
-          this.name
-        }. It should be a "main file" (lib.rs or main.rs) or a Cargo.toml`,
+        `Couldn't figure out what to do with ${this.name}. It should be a "main file" (lib.rs or main.rs) or a Cargo.toml`,
       );
     }
   }
