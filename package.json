@@ -42,7 +42,7 @@
     "commitizen": "3.1.1",
     "cz-conventional-changelog": "2.1.0",
     "eslint": "6.0.1",
-    "eslint-config-prettier": "5.0.0",
+    "eslint-config-prettier": "5.1.0",
     "eslint-plugin-prettier": "3.1.0",
     "jest": "24.8.0",
     "parcel-bundler": "1.12.3",
