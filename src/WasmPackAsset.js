@@ -140,7 +140,6 @@ class WasmPackAsset extends Asset {
         "throw new Error('the `module` argument is required for use with `parcel-plugin-wasm-pack`');",
       )
       .replace('return wasm;', `return { ${exportNames.join(', ')} };`);
-    init.split('\n').forEach(line => logger.log(line));
     await fs.writeFile(initPath, init);
 
     await this.addDependency(path.relative(dir, wasmPath));
