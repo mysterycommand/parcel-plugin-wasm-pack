@@ -1,3 +1,10 @@
+## [3.0.4](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.3...v3.0.4) (2019-06-27)
+
+
+### Bug Fixes
+
+* **WasmPackAsset:** god strings are terrible ([2455507](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/2455507))
+
 ## [3.0.3](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.2...v3.0.3) (2019-06-27)
 
 
