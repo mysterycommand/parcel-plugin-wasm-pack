@@ -109,9 +109,7 @@ class WasmPackAsset extends Asset {
       logger.verbose(`initPath: ${this.initPath}`);
     } else {
       throw new Error(
-        `Couldn't figure out what to do with ${
-          this.name
-        }. It should be a "main file" (lib.rs or main.rs) or a Cargo.toml`,
+        `Couldn't figure out what to do with ${this.name}. It should be a "main file" (lib.rs or main.rs) or a Cargo.toml`,
       );
     }
   }
@@ -136,10 +134,12 @@ class WasmPackAsset extends Asset {
     const exportNames = Array.from(
       matches(/export (?:class|const|function) (\w+)/g, initStr),
     ).map(([_, name]) => name);
-    const init = initStr.replace(
-      'return wasm;',
-      `return { ${exportNames.join(', ')} };`,
-    );
+    const init = initStr
+      .replace('return wasm;', `return { ${exportNames.join(', ')} };`)
+      .replace(
+        `module = import.meta.url.replace(/\.js$/, '_bg.wasm');`,
+        `throw new Error('the \`module\` argument is required for use with \`parcel-plugin-wasm-pack\`');`,
+      );
     await fs.writeFile(initPath, init);
 
     await this.addDependency(path.relative(dir, wasmPath));
