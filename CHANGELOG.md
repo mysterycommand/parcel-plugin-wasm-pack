@@ -1,3 +1,10 @@
+## [3.0.3](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.2...v3.0.3) (2019-06-27)
+
+
+### Bug Fixes
+
+* **WasmPackAsset:** replace 'import.meta.url' with an error saying that the module arg is required f ([ece0ac4](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/ece0ac4)), closes [#54](https://github.com/mysterycommand/parcel-plugin-wasm-pack/issues/54)
+
 ## [3.0.2](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.1...v3.0.2) (2019-05-30)
 
 
