@@ -135,11 +135,11 @@ class WasmPackAsset extends Asset {
       matches(/export (?:class|const|function) (\w+)/g, initStr),
     ).map(([_, name]) => name);
     const init = initStr
-      .replace('return wasm;', `return { ${exportNames.join(', ')} };`)
       .replace(
-        `module = import.meta.url.replace(/\.js$/, '_bg.wasm');`,
-        `throw new Error('the \`module\` argument is required for use with \`parcel-plugin-wasm-pack\`');`,
-      );
+        "module = import.meta.url.replace(/\\.js$/, '_bg.wasm');",
+        "throw new Error('the `module` argument is required for use with `parcel-plugin-wasm-pack`');",
+      )
+      .replace('return wasm;', `return { ${exportNames.join(', ')} };`);
     await fs.writeFile(initPath, init);
 
     await this.addDependency(path.relative(dir, wasmPath));
