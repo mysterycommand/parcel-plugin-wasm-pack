@@ -1,3 +1,15 @@
+# [3.1.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.4...v3.1.0) (2019-06-29)
+
+
+### Bug Fixes
+
+* fix [#18](https://github.com/mysterycommand/parcel-plugin-wasm-pack/issues/18) ... it works! ([6da6c82](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/6da6c82))
+
+
+### Features
+
+* **examples:** an example using multiple rust/wasm-pack assets in a single bundle (lots of duplicai ([c53a506](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/c53a506))
+
 ## [3.0.4](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.3...v3.0.4) (2019-06-27)
 
 
