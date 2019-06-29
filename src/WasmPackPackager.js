@@ -4,13 +4,19 @@ const JSPackager = require('parcel-bundler/src/packagers/JSPackager');
 
 const { rel } = require('./helpers');
 
-const moduleTpl = (wasmName, wasmId, entryName) => `\
-require("${wasmName}")
+const wasmTpl = (name, id) => `\
+require("${name}")
   .then(wasm => {
     // replace the entry in the cache with the loaded wasm module
-    module.bundle.cache["${wasmId}"] = null;
-    module.bundle.register("${wasmId}", wasm);
+    module.bundle.cache["${id}"] = null;
+    module.bundle.register("${id}", wasm);
   })
+`;
+
+const entryTpl = (entryName, wasmDeps) => `\
+Promise.all([${Object.entries(wasmDeps)
+  .map(([name, id]) => wasmTpl(name, id))
+  .join(', ')}])
   .then(() => {
     require("${entryName}");
   });
@@ -19,16 +25,19 @@ require("${wasmName}")
 class WasmPackPackager extends JSPackager {
   async writeBundleLoaders() {
     const assets = [...this.bundle.assets.values()];
-    const wasmAsset = assets.find(({ isWasm }) => isWasm);
+    const wasmAssets = assets.filter(({ isWasm }) => isWasm);
 
-    if (!wasmAsset) {
+    if (!wasmAssets) {
       return await super.writeBundleLoaders();
     }
 
     const { entryAsset } = this.bundle;
-
-    const wasmName = rel(path.dirname(entryAsset.name), wasmAsset.name);
     const entryName = rel(path.dirname(entryAsset.name), entryAsset.name);
+    const wasmDeps = wasmAssets.reduce((acc, { name, id }) => {
+      const wasmName = rel(path.dirname(entryAsset.name), name);
+      acc[wasmName] = id;
+      return acc;
+    }, {});
 
     /**
      * make sure we don't add the original entry to the final bundle's entries
@@ -36,9 +45,9 @@ class WasmPackPackager extends JSPackager {
      */
     this.externalModules.add('');
 
-    const mod = moduleTpl(wasmName, wasmAsset.id, entryName);
+    const mod = entryTpl(entryName, wasmDeps);
     const deps = {
-      [wasmName]: wasmAsset.id,
+      ...wasmDeps,
       [entryName]: entryAsset.id,
     };
 
