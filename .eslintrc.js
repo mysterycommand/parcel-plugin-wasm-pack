@@ -3,4 +3,12 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 9,
   },
+  overrides: [
+    {
+      files: 'examples/**/*.js',
+      parserOptions: {
+        sourceType: 'module',
+      },
+    },
+  ],
 };
