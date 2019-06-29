@@ -17,7 +17,7 @@ Promise.all([
       ([name, id]) =>
         `require("${name}").then(wasm => cacheReplace("${id}", wasm))`,
     )
-    .join(',\n')}
+    .join(',\n  ')}
 ]).then(() => {
   require("${entryName}");
 });
