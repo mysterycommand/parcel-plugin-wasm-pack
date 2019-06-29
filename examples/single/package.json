@@ -10,7 +10,6 @@
   },
   "devDependencies": {
     "@babel/core": "7.4.5",
-    "@babel/plugin-syntax-import-meta": "7.2.0",
     "parcel-bundler": "1.12.3",
     "parcel-plugin-wasm-pack": "../../"
   }

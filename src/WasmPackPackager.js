@@ -4,22 +4,23 @@ const JSPackager = require('parcel-bundler/src/packagers/JSPackager');
 
 const { rel } = require('./helpers');
 
-const wasmTpl = (name, id) => `\
-require("${name}")
-  .then(wasm => {
-    // replace the entry in the cache with the loaded wasm module
-    module.bundle.cache["${id}"] = null;
-    module.bundle.register("${id}", wasm);
-  })
-`;
-
 const entryTpl = (entryName, wasmDeps) => `\
-Promise.all([${Object.entries(wasmDeps)
-  .map(([name, id]) => wasmTpl(name, id))
-  .join(', ')}])
-  .then(() => {
-    require("${entryName}");
-  });
+function cacheReplace(id, mod) {
+  // replace the entry in the cache with the loaded wasm module
+  module.bundle.cache[id] = null;
+  module.bundle.register(id, mod);
+}
+
+Promise.all([
+  ${Object.entries(wasmDeps)
+    .map(
+      ([name, id]) =>
+        `require("${name}").then(wasm => cacheReplace("${id}", wasm))`,
+    )
+    .join(',\n')}
+]).then(() => {
+  require("${entryName}");
+});
 `;
 
 class WasmPackPackager extends JSPackager {
