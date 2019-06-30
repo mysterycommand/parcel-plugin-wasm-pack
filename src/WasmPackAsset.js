@@ -275,7 +275,6 @@ export default function init(wasmUrl) {
        * valid wasm-pack targets are bundler, web, nodejs, and no-modules
        * @see: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html#deploying-rust-and-webassembly
        */
-      // ...(options.target === 'browser' ? ['web'] : ['nodejs']),
       'bundler',
     ];
 
