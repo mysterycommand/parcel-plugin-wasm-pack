@@ -127,66 +127,12 @@ class WasmPackAsset extends Asset {
       return TomlAsset.prototype.generate.call(this);
     }
 
-    const {
-      dir,
-      initPath,
-      wasmPath,
-      options: { target },
-    } = this;
+    const { dir, initPath, wasmPath } = this;
+    this.loadPath = path.join(path.dirname(initPath), 'wasm-loader.js');
 
-    const loaderPath = require.resolve(
-      `./loaders/${target === 'browser' ? 'browser' : 'node'}-wasm-loader.js`,
-    );
-    const loadStr = (await fs.readFile(loaderPath)).toString();
-    const loadPath = path.join(path.dirname(initPath), 'wasm-loader.js');
-
-    await fs.writeFile(loadPath, loadStr);
-    await this.addDependency(rel(dir, loadPath));
-
-    const initStr = (await fs.readFile(initPath)).toString();
-
-    const exportNames = Array.from(
-      matches(/export (?:class|const|function) (\w+)/g, initStr),
-    ).map(([_, name]) => name);
-    const init = initStr.replace(
-      `import * as wasm from './${path.basename(initPath, '.js')}_bg';`,
-      `\
-${
-  target !== 'browser' ? `import { TextDecoder, TextEncoder } from 'util';` : ''
-}
-import { load } from '${rel(path.dirname(initPath), loadPath)}';
-let wasm;
-`,
-    );
-    await fs.writeFile(
-      initPath,
-      `\
-${init}
-
-export default function init(wasmUrl) {
-  return load(wasmUrl, {
-    ['${rel(path.dirname(initPath), initPath)}']: {
-      ${exportNames
-        .filter(name => name.substring(0, 2) === '__')
-        .join(',\n      ')}
-    }
-  }).then(wasmExports => {
-    wasm = wasmExports;
-    return {
-      ${exportNames
-        .filter(name => name.substring(0, 2) !== '__')
-        .join(',\n      ')}
-    }
-  });
-}
-`,
-    );
-
-    // logger.log(path.basename(initPath, '.js'));
-    // init.split('\n').forEach(line => logger.log(line));
-
+    await this.generateLoader();
+    await this.generateInitializer();
     await this.addDependency(rel(dir, wasmPath));
-    await this.addDependency(rel(dir, initPath));
 
     return [
       {
@@ -197,6 +143,67 @@ module.exports = init(require('${rel(dir, wasmPath)}'));
 `,
       },
     ];
+  }
+
+  async generateLoader() {
+    const {
+      dir,
+      loadPath,
+      options: { target },
+    } = this;
+
+    const loaderPath = require.resolve(
+      `./loaders/${target === 'browser' ? 'browser' : 'node'}-wasm-loader.js`,
+    );
+    const loadStr = (await fs.readFile(loaderPath)).toString();
+
+    await fs.writeFile(loadPath, loadStr);
+    await this.addDependency(rel(dir, loadPath));
+  }
+
+  async generateInitializer() {
+    const {
+      dir,
+      initPath,
+      loadPath,
+      options: { target },
+    } = this;
+
+    const initStr = (await fs.readFile(initPath)).toString();
+
+    const exportNames = Array.from(
+      matches(/export (?:class|const|function) (\w+)/g, initStr),
+    ).map(([_, name]) => name);
+
+    const importNames = exportNames.filter(n => n.substring(0, 2) === '__');
+    const publicNames = exportNames.filter(n => n.substring(0, 2) !== '__');
+
+    const init = initStr.replace(
+      `import * as wasm from './${path.basename(initPath, '.js')}_bg';`,
+      [
+        ...(target !== 'browser'
+          ? [`import { TextDecoder, TextEncoder } from 'util';`]
+          : []),
+        `import { load } from '${rel(path.dirname(initPath), loadPath)}';`,
+        `let wasm;`,
+      ].join('\n'),
+    ).concat(`
+export default function init(wasmUrl) {
+  return load(wasmUrl, {
+    ['${rel(path.dirname(initPath), initPath)}']: {
+      ${importNames.join(',\n      ')}
+    }
+  }).then(wasmExports => {
+    wasm = wasmExports;
+    return {
+      ${publicNames.join(',\n      ')}
+    }
+  });
+}
+`);
+
+    await fs.writeFile(initPath, init);
+    await this.addDependency(rel(dir, initPath));
   }
 
   /**
