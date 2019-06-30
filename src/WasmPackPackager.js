@@ -28,7 +28,7 @@ class WasmPackPackager extends JSPackager {
     const assets = [...this.bundle.assets.values()];
     const wasmAssets = assets.filter(({ isWasm }) => isWasm);
 
-    if (!wasmAssets) {
+    if (wasmAssets.length === 0) {
       return await super.writeBundleLoaders();
     }
 
