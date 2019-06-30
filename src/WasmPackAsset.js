@@ -10,7 +10,7 @@ const TomlAsset = require('parcel-bundler/src/assets/TOMLAsset');
 const config = require('parcel-bundler/src/utils/config');
 
 const { cargoInstall, isInstalled } = require('./cargo-install');
-const { exec, proc, matches } = require('./helpers');
+const { exec, matches, proc, rel } = require('./helpers');
 
 /**
  * pulled out from Parcel's RustAsset class:
@@ -127,30 +127,73 @@ class WasmPackAsset extends Asset {
       return TomlAsset.prototype.generate.call(this);
     }
 
-    const { dir, initPath, wasmPath } = this;
+    const {
+      dir,
+      initPath,
+      wasmPath,
+      options: { target },
+    } = this;
+
+    const loaderPath = require.resolve(
+      `./loaders/${target === 'browser' ? 'browser' : 'node'}-wasm-loader.js`,
+    );
+    const loadStr = (await fs.readFile(loaderPath)).toString();
+    const loadPath = path.join(path.dirname(initPath), 'wasm-loader.js');
+
+    await fs.writeFile(loadPath, loadStr);
+    await this.addDependency(rel(dir, loadPath));
 
     const initStr = (await fs.readFile(initPath)).toString();
 
     const exportNames = Array.from(
       matches(/export (?:class|const|function) (\w+)/g, initStr),
     ).map(([_, name]) => name);
-    const init = initStr
-      .replace(
-        "module = import.meta.url.replace(/\\.js$/, '_bg.wasm');",
-        "throw new Error('the `module` argument is required for use with `parcel-plugin-wasm-pack`');",
-      )
-      .replace('return wasm;', `return { ${exportNames.join(', ')} };`);
-    await fs.writeFile(initPath, init);
+    const init = initStr.replace(
+      `import * as wasm from './${path.basename(initPath, '.js')}_bg';`,
+      `\
+${
+  target !== 'browser' ? `import { TextDecoder, TextEncoder } from 'util';` : ''
+}
+import { load } from '${rel(path.dirname(initPath), loadPath)}';
+let wasm;
+`,
+    );
+    await fs.writeFile(
+      initPath,
+      `\
+${init}
 
-    await this.addDependency(path.relative(dir, wasmPath));
-    await this.addDependency(path.relative(dir, initPath));
+export default function init(wasmUrl) {
+  return load(wasmUrl, {
+    ['${rel(path.dirname(initPath), initPath)}']: {
+      ${exportNames
+        .filter(name => name.substring(0, 2) === '__')
+        .join(',\n      ')}
+    }
+  }).then(wasmExports => {
+    wasm = wasmExports;
+    return {
+      ${exportNames
+        .filter(name => name.substring(0, 2) !== '__')
+        .join(',\n      ')}
+    }
+  });
+}
+`,
+    );
+
+    logger.log(path.basename(initPath, '.js'));
+    // init.split('\n').forEach(line => logger.log(line));
+
+    await this.addDependency(rel(dir, wasmPath));
+    await this.addDependency(rel(dir, initPath));
 
     return [
       {
         type: 'js',
         value: `\
-import init from '${path.relative(dir, initPath)}';
-module.exports = init(require('${path.relative(dir, wasmPath)}'));
+import init from '${rel(dir, initPath)}';
+module.exports = init(require('${rel(dir, wasmPath)}'));
 `,
       },
     ];
@@ -225,7 +268,8 @@ module.exports = init(require('${path.relative(dir, wasmPath)}'));
        * valid wasm-pack targets are bundler, web, nodejs, and no-modules
        * @see: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html#deploying-rust-and-webassembly
        */
-      ...(options.target === 'browser' ? ['web'] : ['nodejs']),
+      // ...(options.target === 'browser' ? ['web'] : ['nodejs']),
+      'bundler',
     ];
 
     logger.verbose(`running \`wasm-pack ${args.join(' ')}\``);
