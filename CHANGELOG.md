@@ -1,3 +1,18 @@
+# [4.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.1.0...v4.0.0) (2019-06-30)
+
+
+### Features
+
+* **examples/multiple:** updates examples/multiple to include the necessary babel config, preset and ([f2f99fb](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/f2f99fb))
+* **examples/single:** add a .browserslistrc that specifies the latest version of Chrome and doesn't ([42944a1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/42944a1))
+* **WasmPackAsset:** run wasm-pack with --target bundler, and write our own loader based on the parc ([8c42ed8](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/8c42ed8)), closes [#17](https://github.com/mysterycommand/parcel-plugin-wasm-pack/issues/17)
+
+
+### BREAKING CHANGES
+
+* **WasmPackAsset:** adds our own loaders which use async functions and may require the babel transform
+runtime depending on target browsers/node versions
+
 # [3.1.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.0.4...v3.1.0) (2019-06-29)
 
 
