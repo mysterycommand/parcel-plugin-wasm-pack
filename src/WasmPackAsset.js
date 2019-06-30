@@ -182,7 +182,7 @@ export default function init(wasmUrl) {
 `,
     );
 
-    logger.log(path.basename(initPath, '.js'));
+    // logger.log(path.basename(initPath, '.js'));
     // init.split('\n').forEach(line => logger.log(line));
 
     await this.addDependency(rel(dir, wasmPath));

@@ -6,7 +6,7 @@
     "reset": "yarn clean node_modules/ && yarn install",
     "clean": "cargo clean && rm -rf .cache/ dist/ pkg/",
     "build": "parcel build src/index.html --no-minify --no-cache",
-    "start": "parcel src/index.html"
+    "start": "parcel src/index.html --no-cache"
   },
   "devDependencies": {
     "@babel/core": "7.4.5",
