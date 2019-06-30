@@ -229,7 +229,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.run = run;
 exports.default = init;
-exports.__wbindgen_throw = exports.__widl_f_log_1_ = exports.__wbindgen_object_drop_ref = exports.__wbindgen_string_new = void 0;
+exports.__wbindgen_throw = exports.__widl_f_log_1_ = exports.__wbg_stack_558ba5917b466edd = exports.__wbg_new_59cb74e423758ede = exports.__wbg_error_4bb6c2a97407129a = exports.__wbindgen_object_drop_ref = exports.__wbindgen_string_new = void 0;
 
 var _wasmLoader = require("./wasm-loader.js");
 
@@ -289,6 +289,80 @@ function takeObject(idx) {
   return ret;
 }
 
+var WASM_VECTOR_LEN = 0;
+var cachedTextEncoder = new TextEncoder('utf-8');
+var passStringToWasm;
+
+if (typeof cachedTextEncoder.encodeInto === 'function') {
+  passStringToWasm = function passStringToWasm(arg) {
+    if (typeof arg !== 'string') throw new Error('expected a string argument');
+    var size = arg.length;
+
+    var ptr = wasm.__wbindgen_malloc(size);
+
+    var offset = 0;
+    {
+      var mem = getUint8Memory();
+
+      for (; offset < arg.length; offset++) {
+        var code = arg.charCodeAt(offset);
+        if (code > 0x7F) break;
+        mem[ptr + offset] = code;
+      }
+    }
+
+    if (offset !== arg.length) {
+      arg = arg.slice(offset);
+      ptr = wasm.__wbindgen_realloc(ptr, size, size = offset + arg.length * 3);
+      var view = getUint8Memory().subarray(ptr + offset, ptr + size);
+      var ret = cachedTextEncoder.encodeInto(arg, view);
+      if (ret.read != arg.length) throw new Error('failed to pass whole string');
+      offset += ret.written;
+    }
+
+    WASM_VECTOR_LEN = offset;
+    return ptr;
+  };
+} else {
+  passStringToWasm = function passStringToWasm(arg) {
+    if (typeof arg !== 'string') throw new Error('expected a string argument');
+    var size = arg.length;
+
+    var ptr = wasm.__wbindgen_malloc(size);
+
+    var offset = 0;
+    {
+      var mem = getUint8Memory();
+
+      for (; offset < arg.length; offset++) {
+        var code = arg.charCodeAt(offset);
+        if (code > 0x7F) break;
+        mem[ptr + offset] = code;
+      }
+    }
+
+    if (offset !== arg.length) {
+      var buf = cachedTextEncoder.encode(arg.slice(offset));
+      ptr = wasm.__wbindgen_realloc(ptr, size, size = offset + buf.length);
+      getUint8Memory().set(buf, ptr + offset);
+      offset += buf.length;
+    }
+
+    WASM_VECTOR_LEN = offset;
+    return ptr;
+  };
+}
+
+var cachegetUint32Memory = null;
+
+function getUint32Memory() {
+  if (cachegetUint32Memory === null || cachegetUint32Memory.buffer !== wasm.memory.buffer) {
+    cachegetUint32Memory = new Uint32Array(wasm.memory.buffer);
+  }
+
+  return cachegetUint32Memory;
+}
+
 var __wbindgen_string_new = function __wbindgen_string_new(arg0, arg1) {
   var varg0 = getStringFromWasm(arg0, arg1);
 
@@ -328,6 +402,72 @@ var __wbindgen_object_drop_ref = function __wbindgen_object_drop_ref(arg0) {
 };
 
 exports.__wbindgen_object_drop_ref = __wbindgen_object_drop_ref;
+
+var __wbg_error_4bb6c2a97407129a = function __wbg_error_4bb6c2a97407129a(arg0, arg1) {
+  var varg0 = getStringFromWasm(arg0, arg1);
+  varg0 = varg0.slice();
+
+  wasm.__wbindgen_free(arg0, arg1 * 1);
+
+  try {
+    console.error(varg0);
+  } catch (e) {
+    var error = function () {
+      try {
+        return e instanceof Error ? "".concat(e.message, "\n\nStack:\n").concat(e.stack) : e.toString();
+      } catch (_) {
+        return "<failed to stringify thrown value>";
+      }
+    }();
+
+    console.error("wasm-bindgen: imported JS function that was not marked as `catch` threw an error:", error);
+    throw e;
+  }
+};
+
+exports.__wbg_error_4bb6c2a97407129a = __wbg_error_4bb6c2a97407129a;
+
+var __wbg_new_59cb74e423758ede = function __wbg_new_59cb74e423758ede() {
+  try {
+    return addHeapObject(new Error());
+  } catch (e) {
+    var error = function () {
+      try {
+        return e instanceof Error ? "".concat(e.message, "\n\nStack:\n").concat(e.stack) : e.toString();
+      } catch (_) {
+        return "<failed to stringify thrown value>";
+      }
+    }();
+
+    console.error("wasm-bindgen: imported JS function that was not marked as `catch` threw an error:", error);
+    throw e;
+  }
+};
+
+exports.__wbg_new_59cb74e423758ede = __wbg_new_59cb74e423758ede;
+
+var __wbg_stack_558ba5917b466edd = function __wbg_stack_558ba5917b466edd(ret, arg0) {
+  try {
+    var retptr = passStringToWasm(getObject(arg0).stack);
+    var retlen = WASM_VECTOR_LEN;
+    var mem = getUint32Memory();
+    mem[ret / 4] = retptr;
+    mem[ret / 4 + 1] = retlen;
+  } catch (e) {
+    var error = function () {
+      try {
+        return e instanceof Error ? "".concat(e.message, "\n\nStack:\n").concat(e.stack) : e.toString();
+      } catch (_) {
+        return "<failed to stringify thrown value>";
+      }
+    }();
+
+    console.error("wasm-bindgen: imported JS function that was not marked as `catch` threw an error:", error);
+    throw e;
+  }
+};
+
+exports.__wbg_stack_558ba5917b466edd = __wbg_stack_558ba5917b466edd;
 
 var __widl_f_log_1_ = function __widl_f_log_1_(arg0) {
   try {
@@ -373,6 +513,9 @@ function init(wasmUrl) {
   return (0, _wasmLoader.load)(wasmUrl, _defineProperty({}, './output.js', {
     __wbindgen_string_new: __wbindgen_string_new,
     __wbindgen_object_drop_ref: __wbindgen_object_drop_ref,
+    __wbg_error_4bb6c2a97407129a: __wbg_error_4bb6c2a97407129a,
+    __wbg_new_59cb74e423758ede: __wbg_new_59cb74e423758ede,
+    __wbg_stack_558ba5917b466edd: __wbg_stack_558ba5917b466edd,
     __widl_f_log_1_: __widl_f_log_1_,
     __wbindgen_throw: __wbindgen_throw
   })).then(function (wasmExports) {
