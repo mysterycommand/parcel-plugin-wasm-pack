@@ -15,7 +15,7 @@ describe('WasmPackAsset', () => {
       ${'Cargo.toml'} | ${'./'} | ${true}
       ${'lib.rs'}     | ${'./'} | ${true}
     `(
-      'differentiates between any old .toml and a Cargo.toml',
+      'differentiates between any old .toml and a "main file" (Cargo.toml, lib.rs, or main.rs)',
       ({ name, rootDir, value }) => {
         const asset = new WasmPackAsset(name, { rootDir });
         expect(asset.isWasm).toBe(value);
@@ -155,6 +155,24 @@ bar = "baz"
       } finally {
         expect(asset.isMainFile).toBe(false);
       }
+    });
+  });
+
+  describe('generate', () => {
+    it('works', () => {
+      expect(2 + 2).toBe(4);
+    });
+  });
+
+  describe('generateLoader', () => {
+    it('works', () => {
+      expect(2 + 2).toBe(4);
+    });
+  });
+
+  describe('generateInitializer', () => {
+    it('works', () => {
+      expect(2 + 2).toBe(4);
     });
   });
 });
