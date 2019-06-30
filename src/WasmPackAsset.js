@@ -10,7 +10,7 @@ const TomlAsset = require('parcel-bundler/src/assets/TOMLAsset');
 const config = require('parcel-bundler/src/utils/config');
 
 const { cargoInstall, isInstalled } = require('./cargo-install');
-const { exec, proc, matches } = require('./helpers');
+const { exec, matches, proc, rel } = require('./helpers');
 
 /**
  * pulled out from Parcel's RustAsset class:
@@ -128,32 +128,82 @@ class WasmPackAsset extends Asset {
     }
 
     const { dir, initPath, wasmPath } = this;
+    this.loadPath = path.join(path.dirname(initPath), 'wasm-loader.js');
+
+    await this.generateLoader();
+    await this.generateInitializer();
+    await this.addDependency(rel(dir, wasmPath));
+
+    return [
+      {
+        type: 'js',
+        value: `\
+import init from '${rel(dir, initPath)}';
+module.exports = init(require('${rel(dir, wasmPath)}'));
+`,
+      },
+    ];
+  }
+
+  async generateLoader() {
+    const {
+      dir,
+      loadPath,
+      options: { target },
+    } = this;
+
+    const loaderPath = require.resolve(
+      `./loaders/${target === 'browser' ? 'browser' : 'node'}-wasm-loader.js`,
+    );
+    const loadStr = (await fs.readFile(loaderPath)).toString();
+
+    await fs.writeFile(loadPath, loadStr);
+    await this.addDependency(rel(dir, loadPath));
+  }
+
+  async generateInitializer() {
+    const {
+      dir,
+      initPath,
+      loadPath,
+      options: { target },
+    } = this;
 
     const initStr = (await fs.readFile(initPath)).toString();
 
     const exportNames = Array.from(
       matches(/export (?:class|const|function) (\w+)/g, initStr),
     ).map(([_, name]) => name);
-    const init = initStr
-      .replace(
-        "module = import.meta.url.replace(/\\.js$/, '_bg.wasm');",
-        "throw new Error('the `module` argument is required for use with `parcel-plugin-wasm-pack`');",
-      )
-      .replace('return wasm;', `return { ${exportNames.join(', ')} };`);
+
+    const importNames = exportNames.filter(n => n.substring(0, 2) === '__');
+    const publicNames = exportNames.filter(n => n.substring(0, 2) !== '__');
+
+    const init = initStr.replace(
+      `import * as wasm from './${path.basename(initPath, '.js')}_bg';`,
+      [
+        ...(target !== 'browser'
+          ? [`import { TextDecoder, TextEncoder } from 'util';`]
+          : []),
+        `import { load } from '${rel(path.dirname(initPath), loadPath)}';`,
+        `let wasm;`,
+      ].join('\n'),
+    ).concat(`
+export default function init(wasmUrl) {
+  return load(wasmUrl, {
+    ['${rel(path.dirname(initPath), initPath)}']: {
+      ${importNames.join(',\n      ')}
+    }
+  }).then(wasmExports => {
+    wasm = wasmExports;
+    return {
+      ${publicNames.join(',\n      ')}
+    }
+  });
+}
+`);
+
     await fs.writeFile(initPath, init);
-
-    await this.addDependency(path.relative(dir, wasmPath));
-    await this.addDependency(path.relative(dir, initPath));
-
-    return [
-      {
-        type: 'js',
-        value: `\
-import init from '${path.relative(dir, initPath)}';
-module.exports = init(require('${path.relative(dir, wasmPath)}'));
-`,
-      },
-    ];
+    await this.addDependency(rel(dir, initPath));
   }
 
   /**
@@ -225,7 +275,7 @@ module.exports = init(require('${path.relative(dir, wasmPath)}'));
        * valid wasm-pack targets are bundler, web, nodejs, and no-modules
        * @see: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html#deploying-rust-and-webassembly
        */
-      ...(options.target === 'browser' ? ['web'] : ['nodejs']),
+      'bundler',
     ];
 
     logger.verbose(`running \`wasm-pack ${args.join(' ')}\``);

@@ -5,7 +5,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: 'examples/**/*.js',
+      files: ['examples/**/*.js', 'src/loaders/*.js'],
       parserOptions: {
         sourceType: 'module',
       },

@@ -6,11 +6,10 @@
     "reset": "yarn clean node_modules/ && yarn install",
     "clean": "cargo clean && rm -rf .cache/ dist/ pkg/",
     "build": "parcel build src/index.html --no-minify --no-cache",
-    "start": "parcel src/index.html"
+    "start": "parcel src/index.html --no-cache"
   },
   "devDependencies": {
     "@babel/core": "7.4.5",
-    "@babel/plugin-syntax-import-meta": "7.2.0",
     "parcel-bundler": "1.12.3",
     "parcel-plugin-wasm-pack": "../../"
   }
