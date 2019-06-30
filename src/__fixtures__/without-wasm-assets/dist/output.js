@@ -117,6 +117,21 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"entry.js":[function(require,module,exports) {
-console.log('look mah! no wasm assets');
-},{}]},{},["entry.js"], null)
+})({"lib.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.run = run;
+
+function run() {
+  console.log('run');
+}
+},{}],"entry.js":[function(require,module,exports) {
+"use strict";
+
+var _lib = require("./lib");
+
+(0, _lib.run)();
+},{"./lib":"lib.js"}]},{},["entry.js"], null)

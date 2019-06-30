@@ -1,1 +1,2 @@
-console.log('look mah! no wasm assets');
+import { run } from './lib';
+run();

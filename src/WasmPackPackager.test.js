@@ -8,6 +8,9 @@ const registerPlugin = require('../');
 
 const readFile = promisify(fs.readFile);
 
+const logger = require('@parcel/logger');
+jest.mock('@parcel/logger');
+
 async function bundle(entryPath) {
   const outDir = path.join(path.dirname(entryPath), '../dist');
   const outFile = 'output.js';
@@ -35,6 +38,7 @@ describe('WasmPackPackager', () => {
 
   beforeEach(() => {
     writeBundleLoadersSpy.mockClear();
+    logger.success.mockClear();
   });
 
   it('should not write a loader if this package has no wasm assets', async () => {
@@ -47,6 +51,11 @@ describe('WasmPackPackager', () => {
 
     expect(writeBundleLoadersSpy).toHaveBeenCalledTimes(1);
     expect(outputStr).not.toContain('function cacheReplace(id, mod) {');
+
+    expect(logger.success).toHaveBeenCalledTimes(1);
+    expect(logger.success).toHaveBeenCalledWith(
+      expect.stringContaining('Built in'),
+    );
   });
 
   it('should write a loader if this package has wasm assets', async () => {
@@ -59,5 +68,10 @@ describe('WasmPackPackager', () => {
 
     expect(writeBundleLoadersSpy).toHaveBeenCalledTimes(0);
     expect(outputStr).toContain('function cacheReplace(id, mod) {');
+
+    expect(logger.success).toHaveBeenCalledTimes(1);
+    expect(logger.success).toHaveBeenCalledWith(
+      expect.stringContaining('Built in'),
+    );
   }, 20000);
 });
