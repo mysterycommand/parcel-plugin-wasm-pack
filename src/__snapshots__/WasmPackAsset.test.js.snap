@@ -258,7 +258,7 @@ export const __wbindgen_throw = function(arg0, arg1) {
 
 export default function init(wasmUrl) {
   return load(wasmUrl, {
-    ['./output.js']: {
+    ['./asset_with_wasm_assets.js']: {
       __wbindgen_string_new,
       __wbindgen_object_drop_ref,
       __wbg_error_4bb6c2a97407129a,
@@ -294,5 +294,16 @@ export async function load(wasm, imports) {
   load.__wbindgen_wasm_module = wasmModule;
   return wasmInstance.exports;
 }
+"
+`;
+
+exports[`WasmPackAsset getCargoConfig and ensureCargoConfig ensureCargoConfig adds a lib and lib.crate-type = cdylib if missing 1`] = `
+"[package]
+edition = \\"2018\\"
+name = \\"asset-with-wasm-assets\\"
+version = \\"0.0.0\\"
+
+[lib]
+crate-type = [ \\"cdylib\\" ]
 "
 `;

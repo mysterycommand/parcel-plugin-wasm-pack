@@ -73,5 +73,5 @@ describe('WasmPackPackager', () => {
     expect(logger.success).toHaveBeenCalledWith(
       expect.stringContaining('Built in'),
     );
-  }, 20000);
+  }, 60000);
 });

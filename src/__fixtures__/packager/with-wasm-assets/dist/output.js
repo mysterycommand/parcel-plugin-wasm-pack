@@ -221,7 +221,7 @@ function _load() {
   }));
   return _load.apply(this, arguments);
 }
-},{}],"../pkg/output.js":[function(require,module,exports) {
+},{}],"../pkg/packager_with_wasm_assets.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -510,7 +510,7 @@ var __wbindgen_throw = function __wbindgen_throw(arg0, arg1) {
 exports.__wbindgen_throw = __wbindgen_throw;
 
 function init(wasmUrl) {
-  return (0, _wasmLoader.load)(wasmUrl, _defineProperty({}, './output.js', {
+  return (0, _wasmLoader.load)(wasmUrl, _defineProperty({}, './packager_with_wasm_assets.js', {
     __wbindgen_string_new: __wbindgen_string_new,
     __wbindgen_object_drop_ref: __wbindgen_object_drop_ref,
     __wbg_error_4bb6c2a97407129a: __wbg_error_4bb6c2a97407129a,
@@ -525,17 +525,17 @@ function init(wasmUrl) {
     };
   });
 }
-},{"./wasm-loader.js":"../pkg/wasm-loader.js"}],"../pkg/output_bg.wasm":[function(require,module,exports) {
-module.exports = "/output_bg.3ee67c12.wasm";
+},{"./wasm-loader.js":"../pkg/wasm-loader.js"}],"../pkg/packager_with_wasm_assets_bg.wasm":[function(require,module,exports) {
+module.exports = "/packager_with_wasm_assets_bg.28b32056.wasm";
 },{}],"lib.rs":[function(require,module,exports) {
 "use strict";
 
-var _output = _interopRequireDefault(require("../pkg/output.js"));
+var _packager_with_wasm_assets = _interopRequireDefault(require("../pkg/packager_with_wasm_assets.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-module.exports = (0, _output.default)(require('../pkg/output_bg.wasm'));
-},{"../pkg/wasm-loader.js":"../pkg/wasm-loader.js","../pkg/output.js":"../pkg/output.js","../pkg/output_bg.wasm":"../pkg/output_bg.wasm"}],"entry.js":[function(require,module,exports) {
+module.exports = (0, _packager_with_wasm_assets.default)(require('../pkg/packager_with_wasm_assets_bg.wasm'));
+},{"../pkg/wasm-loader.js":"../pkg/wasm-loader.js","../pkg/packager_with_wasm_assets.js":"../pkg/packager_with_wasm_assets.js","../pkg/packager_with_wasm_assets_bg.wasm":"../pkg/packager_with_wasm_assets_bg.wasm"}],"entry.js":[function(require,module,exports) {
 "use strict";
 
 var _lib = require("./lib.rs");

@@ -97,47 +97,57 @@ bar = "baz"
       expect(tomlAssetProcessSpy).toHaveBeenCalledWith(toml);
     });
 
-    it('collects a bunch of state with a "main" file', async () => {
-      const entryPath = require.resolve(
-        './__fixtures__/asset/with-wasm-assets/src/lib.rs',
-      );
+    it.each([true, false])(
+      'collects a bunch of state with a "main" file, when production is %s',
+      async production => {
+        const entryPath = require.resolve(
+          './__fixtures__/asset/with-wasm-assets/src/lib.rs',
+        );
 
-      const asset = new WasmPackAsset(entryPath, {
-        rootDir: path.dirname(entryPath),
-      });
+        const asset = new WasmPackAsset(entryPath, {
+          rootDir: path.dirname(entryPath),
+          production,
+        });
 
-      await asset.parse();
+        await asset.parse();
 
-      expect(asset.cargoConfig).toEqual({
-        dependencies: {
-          'wasm-bindgen': '0.2.47',
-          'web-sys': { features: ['console'], version: '0.3.24' },
-          console_error_panic_hook: {
-            optional: true,
-            version: '0.1.6',
+        expect(asset.cargoConfig).toEqual({
+          dependencies: {
+            'wasm-bindgen': '0.2.47',
+            'web-sys': { features: ['console'], version: '0.3.24' },
+            console_error_panic_hook: {
+              optional: true,
+              version: '0.1.6',
+            },
           },
-        },
-        features: {
-          default: ['console_error_panic_hook'],
-        },
-        lib: { 'crate-type': ['cdylib', 'rlib'] },
-        package: { edition: '2018', name: 'output', version: '0.0.0' },
-      });
-      expect(asset.cargoDir).toBe(path.join(entryPath, '../..'));
-      expect(asset.isMainFile).toBe(true);
-      expect(asset.pkgDir).toBe(path.join(entryPath, '../../pkg'));
-      expect(asset.rustName).toBe('output');
-      expect(asset.depsPath).toBe(
-        path.join(
-          entryPath,
-          '../../target/wasm32-unknown-unknown/debug/output.d',
-        ),
-      );
-      expect(asset.wasmPath).toBe(
-        path.join(entryPath, '../../pkg/output_bg.wasm'),
-      );
-      expect(asset.initPath).toBe(path.join(entryPath, '../../pkg/output.js'));
-    });
+          features: {
+            default: ['console_error_panic_hook'],
+          },
+          lib: { 'crate-type': ['cdylib', 'rlib'] },
+          package: {
+            edition: '2018',
+            name: 'asset-with-wasm-assets',
+            version: '0.0.0',
+          },
+        });
+        expect(asset.cargoDir).toBe(path.join(entryPath, '../..'));
+        expect(asset.isMainFile).toBe(true);
+        expect(asset.pkgDir).toBe(path.join(entryPath, '../../pkg'));
+        expect(asset.rustName).toBe('asset_with_wasm_assets');
+        expect(asset.depsPath).toBe(
+          path.join(
+            entryPath,
+            '../../target/wasm32-unknown-unknown/debug/asset_with_wasm_assets.d',
+          ),
+        );
+        expect(asset.wasmPath).toBe(
+          path.join(entryPath, '../../pkg/asset_with_wasm_assets_bg.wasm'),
+        );
+        expect(asset.initPath).toBe(
+          path.join(entryPath, '../../pkg/asset_with_wasm_assets.js'),
+        );
+      },
+    );
 
     it('throws an error with a non-"main" file', async () => {
       const entryPath = require.resolve(
@@ -166,7 +176,7 @@ bar = "baz"
       './__fixtures__/asset/with-wasm-assets/src/lib.rs',
     );
     const pkgDir = path.join(path.dirname(entryPath), '../pkg');
-    const outputPath = path.join(pkgDir, 'output.js');
+    const outputPath = path.join(pkgDir, 'asset_with_wasm_assets.js');
     const wasmLoaderPath = path.join(pkgDir, 'wasm-loader.js');
 
     beforeEach(() => {
@@ -186,8 +196,8 @@ bar = "baz"
         {
           type: 'js',
           value: `\
-import init from '../pkg/output.js';
-module.exports = init(require('../pkg/output_bg.wasm'));
+import init from '../pkg/asset_with_wasm_assets.js';
+module.exports = init(require('../pkg/asset_with_wasm_assets_bg.wasm'));
 `,
         },
       ]);
@@ -225,6 +235,49 @@ module.exports = init(require('../pkg/output_bg.wasm'));
       expect(writeFileSpy).toHaveBeenCalledTimes(1);
       const outputStr = (await fs.readFile(outputPath)).toString();
       expect(outputStr).toMatchSnapshot();
+    });
+  });
+
+  describe('getCargoConfig and ensureCargoConfig', () => {
+    it('getCargoConfig honors lib.path in Cargo.toml', async () => {
+      const entryPath = require.resolve(
+        './__fixtures__/asset/with-wasm-assets-and-custom-lib-path/src/entry.rs',
+      );
+
+      const asset = new WasmPackAsset(entryPath, {
+        rootDir: path.dirname(entryPath),
+      });
+
+      await asset.getCargoConfig();
+
+      expect(asset.cargoConfig.lib.path).toBe('src/entry.rs');
+      expect(asset.isMainFile).toBe(true);
+    });
+
+    it('ensureCargoConfig adds a lib and lib.crate-type = cdylib if missing', async () => {
+      const cargoPath = require.resolve(
+        './__fixtures__/asset/with-wasm-assets-missing-lib-crate-type-cdylib/Cargo.toml',
+      );
+      const cargoDir = path.dirname(cargoPath);
+
+      const asset = new WasmPackAsset(path.join(cargoDir, 'src/lib.rs'), {
+        rootDir: path.join(cargoDir, 'src'),
+      });
+
+      asset.cargoDir = cargoDir;
+      asset.cargoConfig = {
+        // lib: { 'crate-type': ['cdylib', 'rlib'] },
+        package: {
+          edition: '2018',
+          name: 'asset-with-wasm-assets',
+          version: '0.0.0',
+        },
+      };
+      await asset.ensureCargoConfig();
+
+      expect(asset.cargoConfig.lib['crate-type']).toEqual(['cdylib']);
+      const cargoStr = (await fs.readFile(cargoPath)).toString();
+      expect(cargoStr).toMatchSnapshot();
     });
   });
 });

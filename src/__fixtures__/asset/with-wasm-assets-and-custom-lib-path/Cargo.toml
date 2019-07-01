@@ -1,15 +1,12 @@
 [package]
-name = "asset-with-wasm-assets"
+name = "asset-with-wasm-assets-and-custom-lib-path"
 version = "0.0.0"
 edition = "2018"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-
-[features]
-default = ["console_error_panic_hook"]
+path = "src/entry.rs"
 
 [dependencies]
 wasm-bindgen = "0.2.47"
 web-sys = { version = "0.3.24", features = [ "console" ] }
-console_error_panic_hook = { version = "0.1.6", optional = true }

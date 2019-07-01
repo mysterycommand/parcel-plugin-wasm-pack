@@ -82,5 +82,3 @@ Cargo.lock
 bin/
 pkg/
 wasm-pack.log
-
-!**/__fixtures__/**/dist
