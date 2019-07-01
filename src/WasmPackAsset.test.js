@@ -9,6 +9,9 @@ const WasmPackAsset = require('./WasmPackAsset');
 const logger = require('@parcel/logger');
 jest.mock('@parcel/logger');
 
+const { isInstalled } = require('./cargo-install');
+jest.mock('./cargo-install');
+
 describe('WasmPackAsset', () => {
   describe('constructor & isWasm', () => {
     it.each`
@@ -282,5 +285,40 @@ module.exports = init(require('../pkg/asset_with_wasm_assets_bg.wasm'));
       const cargoStr = (await fs.readFile(cargoPath)).toString();
       expect(cargoStr).toMatchSnapshot();
     });
+  });
+
+  describe('wasmPackBuild', () => {
+    it.each([true, false])(
+      'runs even if wasm-bindgen shows up as not installed, when production is %s',
+      async production => {
+        isInstalled.mockImplementationOnce(() => false);
+
+        const entryPath = require.resolve(
+          './__fixtures__/asset/with-wasm-assets/src/lib.rs',
+        );
+
+        const asset = new WasmPackAsset(entryPath, {
+          rootDir: path.dirname(entryPath),
+          production,
+        });
+        asset.cargoDir = path.join(entryPath, '../..');
+
+        logger.verbose.mockClear();
+        asset.wasmPackBuild();
+
+        const args = [
+          '--verbose',
+          'build',
+          ...(production ? ['--release'] : ['--dev']),
+          // ...(isInstalled('wasm-bindgen') ? ['-m', 'no-install'] : []),
+          '--target',
+          'bundler',
+        ];
+
+        expect(logger.verbose).toHaveBeenCalledWith(
+          `running \`wasm-pack ${args.join(' ')}\``,
+        );
+      },
+    );
   });
 });
