@@ -1,0 +1,5 @@
+dist
+pkg
+src/__fixtures__
+src/__snapshots__
+target
