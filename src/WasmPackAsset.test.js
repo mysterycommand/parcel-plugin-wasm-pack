@@ -137,7 +137,9 @@ bar = "baz"
         expect(asset.depsPath).toBe(
           path.join(
             entryPath,
-            '../../target/wasm32-unknown-unknown/debug/asset_with_wasm_assets.d',
+            `../../target/wasm32-unknown-unknown/${
+              production ? 'release' : 'debug'
+            }/asset_with_wasm_assets.d`,
           ),
         );
         expect(asset.wasmPath).toBe(
@@ -152,7 +154,7 @@ bar = "baz"
 
     it('throws an error with a non-"main" file', async () => {
       const entryPath = require.resolve(
-        './__fixtures__/asset/with-wasm-assets/src/utils.rs',
+        './__fixtures__/asset/without-wasm-assets/src/not-main.rs',
       );
 
       const asset = new WasmPackAsset(entryPath, {
