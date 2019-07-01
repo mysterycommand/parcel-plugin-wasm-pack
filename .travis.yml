@@ -1,9 +1,12 @@
-language: node_js
+language: rust
+rust: stable
 
 cache:
-  # cache yarn
-  yarn: true
+  cargo: true
   directories:
+    # cache yarn
+    - $HOME/.cache/yarn
+
     # cache npm
     - $HOME/.npm
     - node_modules
@@ -20,6 +23,20 @@ env:
     - secure: Y/dvzfEx3vLWC4Zml60dx3lwoOU5yxSpriFkg8vojUO/OqIK3SSlA5LT4iaaNX22WKXa8/nOMtBlxKEabuyOsgUkrBi7ZO9XFd2xiFMkmf6F2w0m1u6+yiU2iaoFFQX+Rg44cmQgAKmljjuM/8MahaIvfLBaRvlZgYU3eJ0peXrSplHTV7KWwmRQt6OrBcBfWxdxuTVaiqhY4ApFxwqkgUuValCWQ/ubboi5OiqFOK0ZG0wBVT6Ew0fwzAU9zj64Re1evCab5D4/YwFcpb0iow6RagQKI0zdQnm9k0oKNBFeMoBZe2NdOeaENuatkN24QVeJ7TPVwTjbrBxvsyWd8vj4ks/str2tuegbS2aNKJ6BWgq/ZwMFALv3dHDbpvh/cjX703oAo+2pyIB+gMT/i7OQD/ptiaoRZF+1QcTxIF+Cbdzj8mGCL8gKP7JDHq+xZ7QddepNbBqRuPQFbIDffpF2HKF7U7j5OPyUzse1Zl0cVqmiVvBsgFuRyndVHL/N2TCp8ZXStrK2axSFGU5yzuF+rgKA438DrIvNXMY+FwN0b+FWAgIyOohjOeM5rQqlD0G4GEXGZURQDR4W3wDz/GbtckpbDXV+8WN53gOc48jtGkZ42z9wvv6497NvUgjbdP0PjpmZHFduyVMWhAFs/WVDEljXVm+dTbK3eto1K20=
 
 before_install:
+  # add node version, read from .nvmrc
+  - nvm install
+
+  # add components and targets
+  - rustup component add clippy
+  - rustup component add rustfmt
+  - rustup target add wasm32-unknown-unknown
+
+  # get wasm-pack, wasm-bindgen, install-update
+  - (test -x $HOME/.cargo/bin/wasm-pack || cargo install wasm-pack)
+  - (test -x $HOME/.cargo/bin/wasm-bindgen || cargo install wasm-bindgen-cli)
+  - (test -x $HOME/.cargo/bin/cargo-install-update || cargo install cargo-update)
+  - cargo install-update -a
+
   # get the right npm version
   - NPM_VERSION=`node -pe "require('./package.engines.json').npm"`
   - if [ `npm --version` != "$NPM_VERSION" ]; then
@@ -33,6 +50,8 @@ before_install:
     export PATH=$HOME/.yarn/bin:$PATH;
     fi
 
+  - yarn install
+
 before_script:
   # code climate's coverage reporter
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
@@ -43,9 +62,6 @@ before_script:
 script:
   - yarn lint
   - yarn test
-
-after_success:
-  - test $TRAVIS_PULL_REQUEST != "false" && npx semantic-release-github-pr
 
 deploy:
   # deploy a git tag, release notes, bump package.json, update READMEs
