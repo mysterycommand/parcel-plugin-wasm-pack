@@ -43,7 +43,7 @@ describe('WasmPackPackager', () => {
 
   it('should not write a loader if this package has no wasm assets', async () => {
     const entryPath = require.resolve(
-      './__fixtures__/without-wasm-assets/src/entry.js',
+      './__fixtures__/packager/without-wasm-assets/src/entry.js',
     );
 
     const outputPath = await bundle(entryPath);
@@ -60,7 +60,7 @@ describe('WasmPackPackager', () => {
 
   it('should write a loader if this package has wasm assets', async () => {
     const entryPath = require.resolve(
-      './__fixtures__/with-wasm-assets/src/entry.js',
+      './__fixtures__/packager/with-wasm-assets/src/entry.js',
     );
 
     const outputPath = await bundle(entryPath);
