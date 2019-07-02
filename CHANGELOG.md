@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.0.0...v4.0.1) (2019-07-02)
+
+
+### Bug Fixes
+
+* **package:** add loaders package.json's files key, 4.0.0 is broken ([8d444ea](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/8d444ea)), closes [#61](https://github.com/mysterycommand/parcel-plugin-wasm-pack/issues/61)
+
 # [4.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v3.1.0...v4.0.0) (2019-06-30)
 
 
