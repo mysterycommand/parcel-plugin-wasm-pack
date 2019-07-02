@@ -7,7 +7,8 @@
     "index.js",
     "LICENSE-APACHE",
     "LICENSE-MIT",
-    "src/*.js"
+    "src/*.js",
+    "src/loaders/*.js"
   ],
   "repository": "git@github.com:mysterycommand/parcel-plugin-wasm-pack.git",
   "author": "Matt Hayes <matt@mysterycommand.com>",

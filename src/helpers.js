@@ -6,51 +6,50 @@ const logger = require('@parcel/logger');
 
 const exec = promisify(execFile);
 
+function logProgress(line) {
+  const lines = line.split('\n');
+  lines.slice(0, -1).forEach(line => logger.progress(line));
+  return lines.slice(-1)[0];
+}
+
+function createDataHandler(stream) {
+  return data => {
+    stream.currentLine += data;
+    if (stream.currentLine.includes('\n')) {
+      stream.totalLines += stream.currentLine;
+      stream.currentLine = logProgress(stream.currentLine);
+    }
+  };
+}
+
+function createStream() {
+  return {
+    currentLine: '',
+    totalLines: '',
+  };
+}
+
 function proc(bin, args, opts) {
   return new Promise((resolve, reject) => {
-    const p = spawn(bin, args, opts);
+    const process = spawn(bin, args, opts);
 
-    let stdout = '';
-    let stdoutLine = '';
-    let stderr = '';
-    let stderrLine = '';
+    const stdout = createStream();
+    const stderr = createStream();
 
-    p.stdout.on('data', d => {
-      stdoutLine += d;
+    process.stdout.on('data', createDataHandler(stdout));
+    process.stderr.on('data', createDataHandler(stderr));
 
-      if (stdoutLine.includes('\n')) {
-        stdout += stdoutLine;
-        const lines = stdoutLine.split('\n');
-        lines.slice(0, -1).forEach(line => logger.progress(line));
-        stdoutLine = lines.slice(-1)[0];
-      }
-    });
-
-    p.stderr.on('data', d => {
-      stderrLine += d;
-
-      if (stderrLine.includes('\n')) {
-        stderr += stderrLine;
-        const lines = stderrLine.split('\n');
-        lines.slice(0, -1).forEach(line => logger.progress(line));
-        stderrLine = lines.slice(-1)[0];
-      }
-    });
-
-    p.on('close', code => {
-      logger.clear();
-
-      if (code === 0) {
-        resolve(stdout);
-      } else {
-        reject(stderr);
-      }
-    });
-
-    p.on('error', e => {
-      logger.clear();
-      reject(e);
-    });
+    process
+      .on('close', code => {
+        logger.clear();
+        code === 0
+          ? resolve(stdout.totalLines + stdout.currentLine)
+          : reject(stderr.totalLines + stderr.currentLine);
+      })
+      .on('error', error => {
+        logger.clear();
+        reject(error);
+      });
   });
 }
 

@@ -75,7 +75,7 @@ class WasmPackAsset extends Asset {
      *
      * this.cargoConfig = {};
      * this.cargoDir = '';
-     * this.isMainFile = false;
+     * this.isMainFile = true|false;
      */
     await this.getCargoConfig();
     logger.verbose(`cargoConfig:`);
