@@ -23,6 +23,8 @@ jest.mock('parcel-bundler/src/utils/config', () => {
   };
 });
 
+const timeout = 1200000;
+
 describe('WasmPackAsset', () => {
   describe('constructor & isWasm', () => {
     it.each`
@@ -44,46 +46,54 @@ describe('WasmPackAsset', () => {
     );
   });
 
-  describe('process', () => {
-    const assetProcessSpy = jest.spyOn(
-      Object.getPrototypeOf(WasmPackAsset.prototype),
-      'process',
-    );
-    const rustAssetProcessSpy = jest.spyOn(RustAsset.prototype, 'process');
-
-    beforeEach(() => {
-      assetProcessSpy.mockClear();
-      rustAssetProcessSpy.mockClear();
-    });
-
-    it('passes non-wasm assets to the Asset.prototype.process', async () => {
-      const entryPath = require.resolve(
-        './__fixtures__/asset/without-wasm-assets/src/dummy.toml',
+  describe(
+    'process',
+    () => {
+      const assetProcessSpy = jest.spyOn(
+        Object.getPrototypeOf(WasmPackAsset.prototype),
+        'process',
       );
+      const rustAssetProcessSpy = jest.spyOn(RustAsset.prototype, 'process');
 
-      const asset = new WasmPackAsset(entryPath, {
-        rootDir: path.dirname(entryPath),
+      beforeEach(() => {
+        assetProcessSpy.mockClear();
+        rustAssetProcessSpy.mockClear();
       });
 
-      await asset.process();
-      expect(assetProcessSpy).toHaveBeenCalledTimes(1);
-      expect(rustAssetProcessSpy).toHaveBeenCalledTimes(0);
-    }, 120000);
+      it(
+        'passes non-wasm assets to the Asset.prototype.process',
+        async () => {
+          const entryPath = require.resolve(
+            './__fixtures__/asset/without-wasm-assets/src/dummy.toml',
+          );
 
-    it('passes wasm assets to RustAsset.prototype.process', async () => {
-      const entryPath = require.resolve(
-        './__fixtures__/asset/with-wasm-assets/Cargo.toml',
+          const asset = new WasmPackAsset(entryPath, {
+            rootDir: path.dirname(entryPath),
+          });
+
+          await asset.process();
+          expect(assetProcessSpy).toHaveBeenCalledTimes(1);
+          expect(rustAssetProcessSpy).toHaveBeenCalledTimes(0);
+        },
+        timeout,
       );
 
-      const asset = new WasmPackAsset(entryPath, {
-        rootDir: path.dirname(entryPath),
-      });
+      it('passes wasm assets to RustAsset.prototype.process', async () => {
+        const entryPath = require.resolve(
+          './__fixtures__/asset/with-wasm-assets/Cargo.toml',
+        );
 
-      await asset.process();
-      expect(assetProcessSpy).toHaveBeenCalledTimes(1);
-      expect(rustAssetProcessSpy).toHaveBeenCalledTimes(1);
-    });
-  }, 120000);
+        const asset = new WasmPackAsset(entryPath, {
+          rootDir: path.dirname(entryPath),
+        });
+
+        await asset.process();
+        expect(assetProcessSpy).toHaveBeenCalledTimes(1);
+        expect(rustAssetProcessSpy).toHaveBeenCalledTimes(1);
+      });
+    },
+    timeout,
+  );
 
   describe('parse', () => {
     const tomlAssetProcessSpy = jest.spyOn(TomlAsset.prototype, 'parse');
@@ -92,24 +102,28 @@ describe('WasmPackAsset', () => {
       tomlAssetProcessSpy.mockClear();
     });
 
-    it('hands off to TomlAsset.prototype.parse if we somehow got here with a .toml file', async () => {
-      const entryPath = require.resolve(
-        './__fixtures__/asset/without-wasm-assets/src/dummy.toml',
-      );
+    it(
+      'hands off to TomlAsset.prototype.parse if we somehow got here with a .toml file',
+      async () => {
+        const entryPath = require.resolve(
+          './__fixtures__/asset/without-wasm-assets/src/dummy.toml',
+        );
 
-      const asset = new WasmPackAsset(entryPath, {
-        rootDir: path.dirname(entryPath),
-      });
+        const asset = new WasmPackAsset(entryPath, {
+          rootDir: path.dirname(entryPath),
+        });
 
-      const toml = `\
+        const toml = `\
 [foo]
 bar = "baz"
 `;
 
-      await asset.parse(toml);
-      expect(tomlAssetProcessSpy).toHaveBeenCalledTimes(1);
-      expect(tomlAssetProcessSpy).toHaveBeenCalledWith(toml);
-    }, 120000);
+        await asset.parse(toml);
+        expect(tomlAssetProcessSpy).toHaveBeenCalledTimes(1);
+        expect(tomlAssetProcessSpy).toHaveBeenCalledWith(toml);
+      },
+      timeout,
+    );
 
     it.each([true, false])(
       'collects a bunch of state with a "main" file, when production is %s',
@@ -163,28 +177,32 @@ bar = "baz"
           path.join(entryPath, '../../pkg/asset_with_wasm_assets.js'),
         );
       },
-      120000,
+      timeout,
     );
 
-    it('throws an error with a non-"main" file', async () => {
-      const entryPath = require.resolve(
-        './__fixtures__/asset/without-wasm-assets/src/not-main.rs',
-      );
-
-      const asset = new WasmPackAsset(entryPath, {
-        rootDir: path.dirname(entryPath),
-      });
-
-      try {
-        await asset.parse();
-      } catch (error) {
-        expect(error.message).toBe(
-          `Couldn't figure out what to do with ${entryPath}. It should be a "main file" (lib.rs or main.rs) or a Cargo.toml`,
+    it(
+      'throws an error with a non-"main" file',
+      async () => {
+        const entryPath = require.resolve(
+          './__fixtures__/asset/without-wasm-assets/src/not-main.rs',
         );
-      } finally {
-        expect(asset.isMainFile).toBe(false);
-      }
-    }, 120000);
+
+        const asset = new WasmPackAsset(entryPath, {
+          rootDir: path.dirname(entryPath),
+        });
+
+        try {
+          await asset.parse();
+        } catch (error) {
+          expect(error.message).toBe(
+            `Couldn't figure out what to do with ${entryPath}. It should be a "main file" (lib.rs or main.rs) or a Cargo.toml`,
+          );
+        } finally {
+          expect(asset.isMainFile).toBe(false);
+        }
+      },
+      timeout,
+    );
   });
 
   describe('generate, generateLoader, and generateInitializer', () => {
@@ -200,103 +218,123 @@ bar = "baz"
       writeFileSpy.mockClear();
     });
 
-    it('generate returns an asset that imports init and exports a call with the wasmPath', async () => {
-      const asset = new WasmPackAsset(entryPath, {
-        rootDir: path.dirname(entryPath),
-      });
+    it(
+      'generate returns an asset that imports init and exports a call with the wasmPath',
+      async () => {
+        const asset = new WasmPackAsset(entryPath, {
+          rootDir: path.dirname(entryPath),
+        });
 
-      await asset.parse();
-      const generated = await asset.generate();
+        await asset.parse();
+        const generated = await asset.generate();
 
-      expect(writeFileSpy).toHaveBeenCalledTimes(2);
-      expect(generated).toEqual([
-        {
-          type: 'js',
-          value: `\
+        expect(writeFileSpy).toHaveBeenCalledTimes(2);
+        expect(generated).toEqual([
+          {
+            type: 'js',
+            value: `\
 import init from '../pkg/asset_with_wasm_assets.js';
 module.exports = init(require('../pkg/asset_with_wasm_assets_bg.wasm'));
 `,
-        },
-      ]);
-    }, 120000);
+          },
+        ]);
+      },
+      timeout,
+    );
 
-    it('generateLoader writes a file called wasm-loader.js depending on the target', async () => {
-      const asset = new WasmPackAsset(entryPath, {
-        rootDir: path.dirname(entryPath),
-      });
+    it(
+      'generateLoader writes a file called wasm-loader.js depending on the target',
+      async () => {
+        const asset = new WasmPackAsset(entryPath, {
+          rootDir: path.dirname(entryPath),
+        });
 
-      await asset.parse();
-      asset.loadPath = path.join(
-        path.dirname(asset.initPath),
-        'wasm-loader.js',
-      );
-      await asset.generateInitializer();
+        await asset.parse();
+        asset.loadPath = path.join(
+          path.dirname(asset.initPath),
+          'wasm-loader.js',
+        );
+        await asset.generateInitializer();
 
-      expect(writeFileSpy).toHaveBeenCalledTimes(1);
-      const wasmLoaderStr = (await fs.readFile(wasmLoaderPath)).toString();
-      expect(wasmLoaderStr).toMatchSnapshot();
-    }, 120000);
+        expect(writeFileSpy).toHaveBeenCalledTimes(1);
+        const wasmLoaderStr = (await fs.readFile(wasmLoaderPath)).toString();
+        expect(wasmLoaderStr).toMatchSnapshot();
+      },
+      timeout,
+    );
 
-    it('generateInitializer augments the module generated by wasm-pack', async () => {
-      const asset = new WasmPackAsset(entryPath, {
-        rootDir: path.dirname(entryPath),
-      });
+    it(
+      'generateInitializer augments the module generated by wasm-pack',
+      async () => {
+        const asset = new WasmPackAsset(entryPath, {
+          rootDir: path.dirname(entryPath),
+        });
 
-      await asset.parse();
-      asset.loadPath = path.join(
-        path.dirname(asset.initPath),
-        'wasm-loader.js',
-      );
-      await asset.generateInitializer();
+        await asset.parse();
+        asset.loadPath = path.join(
+          path.dirname(asset.initPath),
+          'wasm-loader.js',
+        );
+        await asset.generateInitializer();
 
-      expect(writeFileSpy).toHaveBeenCalledTimes(1);
-      const outputStr = (await fs.readFile(outputPath)).toString();
-      expect(outputStr).toMatchSnapshot();
-    }, 120000);
+        expect(writeFileSpy).toHaveBeenCalledTimes(1);
+        const outputStr = (await fs.readFile(outputPath)).toString();
+        expect(outputStr).toMatchSnapshot();
+      },
+      timeout,
+    );
   });
 
-  describe('getCargoConfig and ensureCargoConfig', () => {
-    it('getCargoConfig honors lib.path in Cargo.toml', async () => {
-      const entryPath = require.resolve(
-        './__fixtures__/asset/with-wasm-assets-and-custom-lib-path/src/entry.rs',
-      );
+  describe(
+    'getCargoConfig and ensureCargoConfig',
+    () => {
+      it(
+        'getCargoConfig honors lib.path in Cargo.toml',
+        async () => {
+          const entryPath = require.resolve(
+            './__fixtures__/asset/with-wasm-assets-and-custom-lib-path/src/entry.rs',
+          );
 
-      const asset = new WasmPackAsset(entryPath, {
-        rootDir: path.dirname(entryPath),
-      });
+          const asset = new WasmPackAsset(entryPath, {
+            rootDir: path.dirname(entryPath),
+          });
 
-      await asset.getCargoConfig();
+          await asset.getCargoConfig();
 
-      expect(asset.cargoConfig.lib.path).toBe('src/entry.rs');
-      expect(asset.isMainFile).toBe(true);
-    }, 120000);
-
-    it('ensureCargoConfig adds a lib and lib.crate-type = cdylib if missing', async () => {
-      const cargoPath = require.resolve(
-        './__fixtures__/asset/with-wasm-assets-missing-lib-crate-type-cdylib/Cargo.toml',
-      );
-      const cargoDir = path.dirname(cargoPath);
-
-      const asset = new WasmPackAsset(path.join(cargoDir, 'src/lib.rs'), {
-        rootDir: path.join(cargoDir, 'src'),
-      });
-
-      asset.cargoDir = cargoDir;
-      asset.cargoConfig = {
-        // lib: { 'crate-type': ['cdylib', 'rlib'] },
-        package: {
-          edition: '2018',
-          name: 'asset-with-wasm-assets',
-          version: '0.0.0',
+          expect(asset.cargoConfig.lib.path).toBe('src/entry.rs');
+          expect(asset.isMainFile).toBe(true);
         },
-      };
-      await asset.ensureCargoConfig();
+        timeout,
+      );
 
-      expect(asset.cargoConfig.lib['crate-type']).toEqual(['cdylib']);
-      const cargoStr = (await fs.readFile(cargoPath)).toString();
-      expect(cargoStr).toMatchSnapshot();
-    });
-  }, 120000);
+      it('ensureCargoConfig adds a lib and lib.crate-type = cdylib if missing', async () => {
+        const cargoPath = require.resolve(
+          './__fixtures__/asset/with-wasm-assets-missing-lib-crate-type-cdylib/Cargo.toml',
+        );
+        const cargoDir = path.dirname(cargoPath);
+
+        const asset = new WasmPackAsset(path.join(cargoDir, 'src/lib.rs'), {
+          rootDir: path.join(cargoDir, 'src'),
+        });
+
+        asset.cargoDir = cargoDir;
+        asset.cargoConfig = {
+          // lib: { 'crate-type': ['cdylib', 'rlib'] },
+          package: {
+            edition: '2018',
+            name: 'asset-with-wasm-assets',
+            version: '0.0.0',
+          },
+        };
+        await asset.ensureCargoConfig();
+
+        expect(asset.cargoConfig.lib['crate-type']).toEqual(['cdylib']);
+        const cargoStr = (await fs.readFile(cargoPath)).toString();
+        expect(cargoStr).toMatchSnapshot();
+      });
+    },
+    timeout,
+  );
 
   describe('wasmPackBuild', () => {
     it.each([true, false])(
@@ -330,7 +368,7 @@ module.exports = init(require('../pkg/asset_with_wasm_assets_bg.wasm'));
           `running \`wasm-pack ${args.join(' ')}\``,
         );
       },
-      120000,
+      timeout,
     );
   });
 });
