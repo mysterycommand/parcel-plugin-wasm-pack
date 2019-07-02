@@ -23,7 +23,7 @@ jest.mock('parcel-bundler/src/utils/config', () => {
   };
 });
 
-const timeout = 1200000;
+const timeout = 5 * 60 * 1000; // 5 minutes without the cache
 
 describe('WasmPackAsset', () => {
   describe('constructor & isWasm', () => {
