@@ -46,39 +46,39 @@ describe('WasmPackAsset', () => {
     );
   });
 
-  describe(
-    'process',
-    () => {
-      const assetProcessSpy = jest.spyOn(
-        Object.getPrototypeOf(WasmPackAsset.prototype),
-        'process',
-      );
-      const rustAssetProcessSpy = jest.spyOn(RustAsset.prototype, 'process');
+  describe('process', () => {
+    const assetProcessSpy = jest.spyOn(
+      Object.getPrototypeOf(WasmPackAsset.prototype),
+      'process',
+    );
+    const rustAssetProcessSpy = jest.spyOn(RustAsset.prototype, 'process');
 
-      beforeEach(() => {
-        assetProcessSpy.mockClear();
-        rustAssetProcessSpy.mockClear();
-      });
+    beforeEach(() => {
+      assetProcessSpy.mockClear();
+      rustAssetProcessSpy.mockClear();
+    });
 
-      it(
-        'passes non-wasm assets to the Asset.prototype.process',
-        async () => {
-          const entryPath = require.resolve(
-            './__fixtures__/asset/without-wasm-assets/src/dummy.toml',
-          );
+    it(
+      'passes non-wasm assets to the Asset.prototype.process',
+      async () => {
+        const entryPath = require.resolve(
+          './__fixtures__/asset/without-wasm-assets/src/dummy.toml',
+        );
 
-          const asset = new WasmPackAsset(entryPath, {
-            rootDir: path.dirname(entryPath),
-          });
+        const asset = new WasmPackAsset(entryPath, {
+          rootDir: path.dirname(entryPath),
+        });
 
-          await asset.process();
-          expect(assetProcessSpy).toHaveBeenCalledTimes(1);
-          expect(rustAssetProcessSpy).toHaveBeenCalledTimes(0);
-        },
-        timeout,
-      );
+        await asset.process();
+        expect(assetProcessSpy).toHaveBeenCalledTimes(1);
+        expect(rustAssetProcessSpy).toHaveBeenCalledTimes(0);
+      },
+      timeout,
+    );
 
-      it('passes wasm assets to RustAsset.prototype.process', async () => {
+    it(
+      'passes wasm assets to RustAsset.prototype.process',
+      async () => {
         const entryPath = require.resolve(
           './__fixtures__/asset/with-wasm-assets/Cargo.toml',
         );
@@ -90,10 +90,10 @@ describe('WasmPackAsset', () => {
         await asset.process();
         expect(assetProcessSpy).toHaveBeenCalledTimes(1);
         expect(rustAssetProcessSpy).toHaveBeenCalledTimes(1);
-      });
-    },
-    timeout,
-  );
+      },
+      timeout,
+    );
+  });
 
   describe('parse', () => {
     const tomlAssetProcessSpy = jest.spyOn(TomlAsset.prototype, 'parse');
