@@ -65,6 +65,9 @@ script:
   - yarn lint
   - yarn test --forceExit
 
+after_success:
+  - test $TRAVIS_PULL_REQUEST != "false" && npx semantic-release-github-pr
+
 deploy:
   # deploy a git tag, release notes, bump package.json, update READMEs
   - provider: script
