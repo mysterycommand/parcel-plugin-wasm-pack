@@ -60,6 +60,8 @@ before_script:
   - './cc-test-reporter before-build'
 
 script:
+  # build the wasm-modules before running the tests or a bunch of the tests time out
+  - cargo build
   - yarn lint
   - yarn test
 

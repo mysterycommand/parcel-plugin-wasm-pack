@@ -12,6 +12,17 @@ jest.mock('@parcel/logger');
 const { isInstalled } = require('./cargo-install');
 jest.mock('./cargo-install');
 
+jest.mock('parcel-bundler/src/utils/config', () => {
+  const actualConfig = jest.requireActual('parcel-bundler/src/utils/config');
+  return {
+    ...actualConfig,
+    resolve: (name, filenames) =>
+      name.includes('not-main.rs')
+        ? undefined
+        : actualConfig.resolve(name, filenames),
+  };
+});
+
 describe('WasmPackAsset', () => {
   describe('constructor & isWasm', () => {
     it.each`
@@ -72,7 +83,7 @@ describe('WasmPackAsset', () => {
       expect(assetProcessSpy).toHaveBeenCalledTimes(1);
       expect(rustAssetProcessSpy).toHaveBeenCalledTimes(1);
     });
-  });
+  }, 60000);
 
   describe('parse', () => {
     const tomlAssetProcessSpy = jest.spyOn(TomlAsset.prototype, 'parse');
@@ -139,8 +150,8 @@ bar = "baz"
         expect(asset.rustName).toBe('asset_with_wasm_assets');
         expect(asset.depsPath).toBe(
           path.join(
-            entryPath,
-            `../../target/wasm32-unknown-unknown/${
+            __dirname,
+            `../target/wasm32-unknown-unknown/${
               production ? 'release' : 'debug'
             }/asset_with_wasm_assets.d`,
           ),
