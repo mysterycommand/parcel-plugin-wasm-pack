@@ -179,7 +179,19 @@ module.exports = init(require('${rel(dir, wasmPath)}'));
     const publicNames = exportNames.filter(n => n.substring(0, 2) !== '__');
 
     const init = initStr.replace(
-      `import * as wasm from './${path.basename(initPath, '.js')}_bg';`,
+      /**
+       * the full filename with extension will be explicitly added in an
+       * upcoming release of `wasm-bindgen`
+       *
+       * @see: https://github.com/rustwasm/wasm-bindgen/issues/1441
+       * @see: https://github.com/rustwasm/wasm-bindgen/pull/1646
+       */
+      new RegExp(
+        `import [*] as wasm from '\./${path.basename(
+          initPath,
+          '.js',
+        )}_bg(:?\.wasm)?';`,
+      ),
       [
         ...(target !== 'browser'
           ? [`import { TextDecoder, TextEncoder } from 'util';`]
