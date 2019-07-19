@@ -1,3 +1,15 @@
+# [4.1.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.0.1...v4.1.0) (2019-07-18)
+
+
+### Bug Fixes
+
+* **yarn.lock(s):** update transitive dependency on lodash to hopefully fix the security warning ([3cd56d2](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/3cd56d2))
+
+
+### Features
+
+* **WasmPackAsset:** pick out the wasm module import with a regexp (it should work with or without t ([c3f14ca](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/c3f14ca))
+
 ## [4.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.0.0...v4.0.1) (2019-07-02)
 
 
