@@ -1,3 +1,10 @@
+## [4.1.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.1.0...v4.1.1) (2019-07-21)
+
+
+### Bug Fixes
+
+* **browser-wasm-loader.js:** instantiate also needs imports (duh!) ([6de9f52](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/6de9f52))
+
 # [4.1.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.0.1...v4.1.0) (2019-07-18)
 
 
