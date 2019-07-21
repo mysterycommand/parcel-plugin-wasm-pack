@@ -19,7 +19,7 @@ const streamErrorMessage = [
   'to `WebAssembly.instantiate` which is slower. Original error:\n',
 ].join(' ');
 
-function instantiate(request) {
+function instantiate(request, imports) {
   return request
     .then(response => response.arrayBuffer())
     .then(bytes => WebAssembly.instantiate(bytes, imports));
@@ -29,9 +29,9 @@ function instantiateRequest(request, imports) {
   return canInstantiateStreaming
     ? WebAssembly.instantiateStreaming(request, imports).catch(e => {
         console.warn(streamErrorMessage, e);
-        return instantiate(request);
+        return instantiate(request, imports);
       })
-    : instantiate(request);
+    : instantiate(request, imports);
 }
 
 async function instantiateModule(module, imports) {
