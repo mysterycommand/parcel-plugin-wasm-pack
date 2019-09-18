@@ -1,3 +1,10 @@
+## [4.1.2](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.1.1...v4.1.2) (2019-09-18)
+
+
+### Bug Fixes
+
+* **helpers.js:** use a regexp with the global flag to replace all instances in a path ([1906179](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/1906179))
+
 ## [4.1.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.1.0...v4.1.1) (2019-07-21)
 
 
