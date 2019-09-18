@@ -60,7 +60,7 @@ function rel(from, to) {
     relativePath = `./${relativePath}`;
   }
 
-  return relativePath.replace('\\', '/');
+  return relativePath.replace(/\\/g, '/');
 }
 
 function* matches(regex, str) {
