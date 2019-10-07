@@ -46,12 +46,12 @@
     "eslint-config-prettier": "6.4.0",
     "eslint-plugin-prettier": "3.1.1",
     "jest": "24.9.0",
-    "parcel-bundler": "1.12.3",
+    "parcel-bundler": "1.12.4",
     "prettier": "1.18.2",
     "semantic-release": "15.13.24",
     "semantic-release-github-pr": "https://github.com/mysterycommand/semantic-release-github-pr.git#fix/34-and-35"
   },
   "peerDependencies": {
-    "parcel-bundler": "1.12.3"
+    "parcel-bundler": "1.12.4"
   }
 }
