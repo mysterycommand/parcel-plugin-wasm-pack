@@ -34,7 +34,7 @@
     "command-exists": "1.2.8"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "3.0.4",
+    "@semantic-release/changelog": "3.0.5",
     "@semantic-release/commit-analyzer": "6.3.2",
     "@semantic-release/git": "7.0.16",
     "@semantic-release/github": "5.5.5",
