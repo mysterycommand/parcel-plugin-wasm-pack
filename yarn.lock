@@ -1038,10 +1038,10 @@
     micromatch "^4.0.0"
     p-reduce "^2.0.0"
 
-"@semantic-release/github@5.5.3", "@semantic-release/github@^5.1.0":
-  version "5.5.3"
-  resolved "https://registry.yarnpkg.com/@semantic-release/github/-/github-5.5.3.tgz#280f5c3d1cbcd469005b0858867d8ceb41c7bc8f"
-  integrity sha512-7Fl6LRYA20Wn440gPWB+uZ3A1slokKS47Kd4uxQnXt4t4lXYTMrg1tpzkY1FUQgsWqq8PFgoJ3lCPoo8JOQwKg==
+"@semantic-release/github@5.5.5", "@semantic-release/github@^5.1.0":
+  version "5.5.5"
+  resolved "https://registry.yarnpkg.com/@semantic-release/github/-/github-5.5.5.tgz#4666367f16d8ad91fd1d3c71a7238498de14ec38"
+  integrity sha512-Wo9OIULMRydbq+HpFh9yiLvra1XyEULPro9Tp4T5MQJ0WZyAQ3YQm74IdT8Pe/UmVDq2nfpT1oHrWkwOc4loHg==
   dependencies:
     "@octokit/rest" "^16.27.0"
     "@semantic-release/error" "^2.2.0"
@@ -1058,7 +1058,6 @@
     mime "^2.4.3"
     p-filter "^2.0.0"
     p-retry "^4.0.0"
-    parse-github-url "^1.0.1"
     url-join "^4.0.0"
 
 "@semantic-release/npm@5.2.0", "@semantic-release/npm@^5.0.5":
