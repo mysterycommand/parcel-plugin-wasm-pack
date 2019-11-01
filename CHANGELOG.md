@@ -1,3 +1,15 @@
+# [5.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.1.2...v5.0.0) (2019-11-01)
+
+
+### chore
+
+* bump engine ([3eaafd4](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/3eaafd4))
+
+
+### BREAKING CHANGES
+
+* node 12
+
 ## [4.1.2](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.1.1...v4.1.2) (2019-09-18)
 
 
