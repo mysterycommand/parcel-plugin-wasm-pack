@@ -48,7 +48,7 @@
     "jest": "24.9.0",
     "parcel-bundler": "1.12.4",
     "prettier": "1.19.1",
-    "semantic-release": "15.13.30",
+    "semantic-release": "15.13.31",
     "semantic-release-github-pr": "https://github.com/mysterycommand/semantic-release-github-pr.git#fix/34-and-35"
   },
   "peerDependencies": {
