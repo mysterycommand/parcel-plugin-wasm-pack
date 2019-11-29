@@ -1,3 +1,10 @@
+## [5.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v5.0.0...v5.0.1) (2019-11-29)
+
+
+### Bug Fixes
+
+* fix commit to bump patch version ([c844473](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/c8444732fcbebb31a9be38bf8ef7f6fb62c7ffaa))
+
 # [5.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v4.1.2...v5.0.0) (2019-11-01)
 
 
