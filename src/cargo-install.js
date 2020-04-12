@@ -4,7 +4,7 @@ const logger = require('@parcel/logger');
 const { proc } = require('./helpers');
 
 const installed = {};
-const isInstalled = cmdOrBin => installed[cmdOrBin];
+const isInstalled = (cmdOrBin) => installed[cmdOrBin];
 
 function cargoInstall(cmd, bin) {
   bin || (bin = cmd);

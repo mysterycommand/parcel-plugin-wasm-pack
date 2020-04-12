@@ -81,7 +81,7 @@ class WasmPackAsset extends Asset {
     logger.verbose(`cargoConfig:`);
     JSON.stringify(this.cargoConfig, null, 2)
       .split('\n')
-      .forEach(line => logger.verbose(line));
+      .forEach((line) => logger.verbose(line));
     logger.verbose(`cargoDir: ${this.cargoDir}`);
     logger.verbose(`isMainFile: ${this.isMainFile}`);
 
@@ -175,8 +175,8 @@ module.exports = init(require('${rel(dir, wasmPath)}'));
       matches(/export (?:class|const|function) (\w+)/g, initStr),
     ).map(([_, name]) => name);
 
-    const importNames = exportNames.filter(n => n.substring(0, 2) === '__');
-    const publicNames = exportNames.filter(n => n.substring(0, 2) !== '__');
+    const importNames = exportNames.filter((n) => n.substring(0, 2) === '__');
+    const publicNames = exportNames.filter((n) => n.substring(0, 2) !== '__');
 
     const init = initStr.replace(
       /**
@@ -236,7 +236,7 @@ export default function init(wasmUrl) {
 
       cargoDir = path.dirname(await config.resolve(this.name, ['Cargo.toml']));
       isMainFile =
-        mainFiles.some(file => path.join(cargoDir, file) === this.name) ||
+        mainFiles.some((file) => path.join(cargoDir, file) === this.name) ||
         this.basename === 'Cargo.toml';
     }
 
@@ -320,7 +320,7 @@ export default function init(wasmUrl) {
 
     JSON.stringify(JSON.parse(stdout), null, 2)
       .split('\n')
-      .forEach(line => logger.verbose(line));
+      .forEach((line) => logger.verbose(line));
 
     const { target_directory: targetDir } = JSON.parse(stdout);
     return path.join(
