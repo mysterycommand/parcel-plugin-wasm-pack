@@ -8,12 +8,12 @@ const exec = promisify(execFile);
 
 function logProgress(line) {
   const lines = line.split('\n');
-  lines.slice(0, -1).forEach(line => logger.progress(line));
+  lines.slice(0, -1).forEach((line) => logger.progress(line));
   return lines.slice(-1)[0];
 }
 
 function createDataHandler(stream) {
-  return data => {
+  return (data) => {
     stream.currentLine += data;
     if (stream.currentLine.includes('\n')) {
       stream.totalLines += stream.currentLine;
@@ -40,13 +40,13 @@ function proc(bin, args, opts) {
     process.stderr.on('data', createDataHandler(stderr));
 
     process
-      .on('close', code => {
+      .on('close', (code) => {
         logger.clear();
         code === 0
           ? resolve(stdout.totalLines + stdout.currentLine)
           : reject(stderr.totalLines + stderr.currentLine);
       })
-      .on('error', error => {
+      .on('error', (error) => {
         logger.clear();
         reject(error);
       });

@@ -21,13 +21,13 @@ const streamErrorMessage = [
 
 function instantiate(request, imports) {
   return request
-    .then(response => response.arrayBuffer())
-    .then(bytes => WebAssembly.instantiate(bytes, imports));
+    .then((response) => response.arrayBuffer())
+    .then((bytes) => WebAssembly.instantiate(bytes, imports));
 }
 
 function instantiateRequest(request, imports) {
   return canInstantiateStreaming
-    ? WebAssembly.instantiateStreaming(request, imports).catch(e => {
+    ? WebAssembly.instantiateStreaming(request, imports).catch((e) => {
         console.warn(streamErrorMessage, e);
         return instantiate(request, imports);
       })

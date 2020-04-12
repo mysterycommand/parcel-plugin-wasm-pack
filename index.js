@@ -1,4 +1,4 @@
-module.exports = function(bundler) {
+module.exports = function (bundler) {
   delete bundler.bundleLoaders.wasm;
 
   bundler.addAssetType('toml', require.resolve('./src/WasmPackAsset'));
