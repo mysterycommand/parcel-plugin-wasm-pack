@@ -31,7 +31,7 @@
     "@iarna/toml": "2.2.3",
     "@parcel/fs": "1.11.0",
     "@parcel/logger": "1.11.1",
-    "command-exists": "1.2.8"
+    "command-exists": "1.2.9"
   },
   "devDependencies": {
     "@semantic-release/changelog": "5.0.1",
