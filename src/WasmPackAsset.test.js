@@ -141,8 +141,8 @@ bar = "baz"
 
         expect(asset.cargoConfig).toEqual({
           dependencies: {
-            'wasm-bindgen': '0.2.47',
-            'web-sys': { features: ['console'], version: '0.3.24' },
+            'wasm-bindgen': '0.2.62',
+            'web-sys': { features: ['console'], version: '0.3.39' },
             console_error_panic_hook: {
               optional: true,
               version: '0.1.6',
