@@ -174,7 +174,7 @@ bar = "baz"
           path.join(entryPath, '../../pkg/asset_with_wasm_assets_bg.wasm'),
         );
         expect(asset.initPath).toBe(
-          path.join(entryPath, '../../pkg/asset_with_wasm_assets.js'),
+          path.join(entryPath, '../../pkg/asset_with_wasm_assets_bg.js'),
         );
       },
       timeout,
@@ -211,7 +211,7 @@ bar = "baz"
       './__fixtures__/asset/with-wasm-assets/src/lib.rs',
     );
     const pkgDir = path.join(path.dirname(entryPath), '../pkg');
-    const outputPath = path.join(pkgDir, 'asset_with_wasm_assets.js');
+    const outputPath = path.join(pkgDir, 'asset_with_wasm_assets_bg.js');
     const wasmLoaderPath = path.join(pkgDir, 'wasm-loader.js');
 
     beforeEach(() => {
@@ -233,7 +233,7 @@ bar = "baz"
           {
             type: 'js',
             value: `\
-import init from '../pkg/asset_with_wasm_assets.js';
+import init from '../pkg/asset_with_wasm_assets_bg.js';
 module.exports = init(require('../pkg/asset_with_wasm_assets_bg.wasm'));
 `,
           },
