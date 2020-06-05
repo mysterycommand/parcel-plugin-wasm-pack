@@ -9,8 +9,8 @@
     "start": "parcel src/index.html --no-cache"
   },
   "devDependencies": {
-    "@babel/core": "7.4.5",
-    "parcel-bundler": "1.12.3",
+    "@babel/core": "7.10.2",
+    "parcel-bundler": "1.12.4",
     "parcel-plugin-wasm-pack": "../../"
   }
 }
