@@ -1,6 +1,6 @@
 {
   "name": "parcel-plugin-wasm-pack",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "description": "A Parcel plugin",
   "main": "index.js",
   "files": [

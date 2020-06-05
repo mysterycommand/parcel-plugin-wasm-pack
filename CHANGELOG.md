@@ -1,3 +1,15 @@
+# [6.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v5.0.1...v6.0.0) (2020-06-05)
+
+
+### chore
+
+* updating the initPath may be a breaking change ([56a84ad](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/56a84ad950f5fb5dd2944d7ef377413642370556))
+
+
+### BREAKING CHANGES
+
+* initPath is updated
+
 ## [5.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v5.0.0...v5.0.1) (2019-11-29)
 
 
