@@ -4,3 +4,7 @@ members = [
   "src/__fixtures__/asset/with-wasm-assets-and-custom-lib-path",
   "src/__fixtures__/packager/with-wasm-assets",
 ]
+exclude = [
+  "examples/multiple",
+  "examples/single"
+]

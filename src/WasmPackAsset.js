@@ -187,10 +187,10 @@ module.exports = init(require('${rel(dir, wasmPath)}'));
        * @see: https://github.com/rustwasm/wasm-bindgen/pull/1646
        */
       new RegExp(
-        `import [*] as wasm from '\./${path.basename(
+        `import [*] as wasm from '\.\/${path.basename(
           initPath,
           '.js',
-        )}_bg(:?\.wasm)?';`,
+        )}(:?\.wasm)?';`,
       ),
       [
         ...(target !== 'browser'
@@ -303,7 +303,7 @@ export default function init(wasmUrl) {
     this.depsPath = await this.getDepsPath();
 
     this.wasmPath = path.join(this.pkgDir, `${this.rustName}_bg.wasm`);
-    this.initPath = path.join(this.pkgDir, `${this.rustName}.js`);
+    this.initPath = path.join(this.pkgDir, `${this.rustName}_bg.js`);
   }
 
   async getDepsPath() {

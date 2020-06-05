@@ -37,19 +37,19 @@
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/commit-analyzer": "8.0.1",
     "@semantic-release/git": "9.0.0",
-    "@semantic-release/github": "7.0.5",
+    "@semantic-release/github": "7.0.7",
     "@semantic-release/npm": "7.0.5",
     "@semantic-release/release-notes-generator": "9.0.1",
-    "commitizen": "4.0.4",
-    "cz-conventional-changelog": "3.1.0",
-    "eslint": "6.8.0",
+    "commitizen": "4.1.2",
+    "cz-conventional-changelog": "3.2.0",
+    "eslint": "7.1.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-prettier": "3.1.3",
-    "jest": "25.5.0",
+    "jest": "26.0.1",
     "parcel-bundler": "1.12.4",
     "prettier": "2.0.5",
-    "semantic-release": "17.0.7",
-    "semantic-release-github-pr": "https://github.com/mysterycommand/semantic-release-github-pr.git#fix/34-and-35"
+    "semantic-release": "17.0.8",
+    "semantic-release-github-pr": "6.0.0"
   },
   "peerDependencies": {
     "parcel-bundler": "1.12.4"
