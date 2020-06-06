@@ -282,7 +282,7 @@ module.exports = init(require('../pkg/asset_with_wasm_assets_bg.wasm'));
         const outputStr = (await fs.readFile(outputPath))
           .toString()
           .split('\n')
-          .slice(0, target === 'browser' ? 3 : 4)
+          .slice(0, 3)
           .join('\n');
         expect(outputStr).toMatchSnapshot();
       },

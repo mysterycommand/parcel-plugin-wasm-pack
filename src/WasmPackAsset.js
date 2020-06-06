@@ -193,9 +193,6 @@ module.exports = init(require('${rel(dir, wasmPath)}'));
         )}(:?\.wasm)?';`,
       ),
       [
-        ...(target !== 'browser'
-          ? [`import { TextDecoder, TextEncoder } from 'util';`]
-          : []),
         `import { load } from '${rel(path.dirname(initPath), loadPath)}';`,
         `let wasm;`,
       ].join('\n'),
