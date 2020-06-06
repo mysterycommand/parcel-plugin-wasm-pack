@@ -1,3 +1,10 @@
+## [6.0.1](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v6.0.0...v6.0.1) (2020-06-06)
+
+
+### Bug Fixes
+
+* empty 'fix' commit to bump the patch version ([e3451d6](https://github.com/mysterycommand/parcel-plugin-wasm-pack/commit/e3451d6075a6c906305b056a8bb1e72b1f3c75ba))
+
 # [6.0.0](https://github.com/mysterycommand/parcel-plugin-wasm-pack/compare/v5.0.1...v6.0.0) (2020-06-05)
 
 
