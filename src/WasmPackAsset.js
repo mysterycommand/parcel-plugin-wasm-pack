@@ -162,12 +162,7 @@ module.exports = init(require('${rel(dir, wasmPath)}'));
   }
 
   async generateInitializer() {
-    const {
-      dir,
-      initPath,
-      loadPath,
-      options: { target },
-    } = this;
+    const { dir, initPath, loadPath } = this;
 
     const initStr = (await fs.readFile(initPath)).toString();
 
