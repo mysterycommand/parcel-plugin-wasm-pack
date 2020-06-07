@@ -1,5 +1,5 @@
-import { hello } from '../crates/hello/src/lib.rs';
-import { world } from '../crates/world/src/lib.rs';
+import { hello } from '../crates/hello/Cargo.toml';
+import { world } from '../crates/world/Cargo.toml';
 
 hello();
 world();
