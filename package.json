@@ -49,7 +49,7 @@
     "parcel-bundler": "1.12.4",
     "prettier": "2.0.5",
     "semantic-release": "17.1.1",
-    "semantic-release-github-pr": "6.0.0"
+    "semantic-release-github-pr": "6.0.1"
   },
   "peerDependencies": {
     "parcel-bundler": "1.12.4"
