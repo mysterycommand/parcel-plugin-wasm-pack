@@ -1,2 +1,2 @@
-import { run } from './lib.rs';
+import { run } from '../Cargo.toml';
 run();
